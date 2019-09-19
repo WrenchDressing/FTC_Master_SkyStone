@@ -1,100 +1,180 @@
+package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;            
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Gyroscope;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+@TeleOp(name = "Teleop3 (Blocks to Java)", group = "")
+public class Teleop3 extends LinearOpMode {
 
-@TeleOp
-public class FIRSTteleopmode extends LinearOpMode {
+  private DcMotor motor_drive_fl;
+  private DcMotor motor_drive_bl;
+  private DcMotor motor_drive_fr;
+  private DcMotor motor_drive_br;
+    /**
+   * This function is executed when this Op Mode is selected from the Driver Station.
+   */
 
-    //numbers after underscores indicate ports and orientation (i.e. fl= front left)
-    private Gyroscope imu;
-    private DcMotor motor_drive_fl;
-    private DcMotor motor_drive_fr;
-    private DcMotor motor_drive_bl;
-    private DcMotor motor_drive_br;
-    private DigitalChannel digitalTouch_01;
-    private DistanceSensor sensorColorRange_0;
-    //private Servo servoTest_0;
-
-    @Override
-    public void runOpMode() {
-
-        imu = hardwareMap.get(Gyroscope.class, "imu");
-        motor_drive_fl = hardwareMap.get(DcMotor.class, "motor_drive_fl");
-        motor_drive_fr = hardwareMap.get(DcMotor.class, "motor_drive_fr");
-        motor_drive_bl = hardwareMap.get(DcMotor.class, "motor_drive_bl");
-        motor_drive_br = hardwareMap.get(DcMotor.class, "motor_drive_br");
-        motor_drive_fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor_drive_fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor_drive_bl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor_drive_br.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        digitalTouch_01 = hardwareMap.get(DigitalChannel.class, "digitalTouch");
-        sensorColorRange_0 = hardwareMap.get(DistanceSensor.class, "sensorColorRange");
-        //servoTest_0 = hardwareMap.get(Servo.class, "servoTest_0");
-        // set digital channel to input mode.
-        digitalTouch_01.setMode(DigitalChannel.Mode.INPUT);
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
-        // run until the end of the match (driver presses STOP)
-        double tgtpowerfl;
-        double tgtpowerfr;
-        double tgtpowerbl;
-        double tgtpowerbr;
-        double multiplier = 1.0;
-
-
-        while (opModeIsActive()) {
-            tgtpowerfl = (-gamepad1.left_stick_y) + (gamepad1.right_stick_x) + (-gamepad1.left_stick_x);
-            tgtpowerfr = (gamepad1.left_stick_y) + (gamepad1.right_stick_x) + (-gamepad1.left_stick_x);
-            tgtpowerbl = (-gamepad1.left_stick_y) + (gamepad1.right_stick_x) + (gamepad1.left_stick_x);
-            tgtpowerbr = (gamepad1.left_stick_y) + (gamepad1.right_stick_x) + (gamepad1.left_stick_x);
-
-            if(!gamepad1.left_bumper) {
-
-            }
-            else {
-                tgtpowerfl = tgtpowerfl / 4;
-                tgtpowerfr = tgtpowerfr / 4;
-                tgtpowerbl = tgtpowerbl / 4;
-                tgtpowerbr = tgtpowerbr / 4;
-            }
-
-            motor_drive_fl.setPower(tgtpowerfl);
-            motor_drive_fr.setPower(tgtpowerfr);
-            motor_drive_bl.setPower(tgtpowerbl);
-            motor_drive_br.setPower(tgtpowerbr);
-
-
-            //telemetry.addData("Servo Position", servoTest_0.getPosition());
-            telemetry.addData("Target Power Front Left", tgtpowerfl);
-            telemetry.addData("Target Power Front Right", tgtpowerfr);
-            telemetry.addData("Target Power Back Right", tgtpowerbl);
-            telemetry.addData("Target Power Back Right", tgtpowerbr);
-            telemetry.addData("Distance (cm)", sensorColorRange_0.getDistance(DistanceUnit.CM));
-            // is button pressed?
-            if (!digitalTouch_01.getState()) {
-                // button is pressed.
-                telemetry.addData("Button", "PRESSED");
-            } else {
-                // button is not pressed.
-                telemetry.addData("Button", "NOT PRESSED");
-            }
-
-
-            telemetry.addData("Status", "Running");
-            telemetry.update();
+  public void runOpMode() {
+    
+    double slowerMode;
+    
+    motor_drive_fl = hardwareMap.dcMotor.get("motor_drive_fl");
+    motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
+    motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
+    motor_drive_br = hardwareMap.dcMotor.get("motor_drive_br");
+    motor_alt_pull = hardwareMap.dcMotor.get("motor_alt_pull");
+    motor_drive_br.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    
+    waitForStart();
+    slowerMode = 1.0;
+      
+      while (opModeIsActive()) {
+          
+          //left trigger slows motors
+          
+        if (gamepad1.left_trigger >= 0.5) {
+          slowerMode = .25;
+        } else {
+            slowerMode = 1.0;
         }
+        
+          //motor gamestick algorithm
+          
+        motor_drive_fl.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
+        motor_drive_bl.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
+        motor_drive_fr.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
+        motor_drive_br.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x)* slowerMode);
+                                      
+          //right trigger flips motors
+          
+        if (gamepad1.right_trigger == 1) {
+          motor_drive_fl.setPower(-motor_drive_fl.getPower());
+          motor_drive_fr.setPower(-motor_drive_fr.getPower());
+          motor_drive_br.setPower(-motor_drive_br.getPower());
+          motor_drive_bl.setPower(-motor_drive_bl.getPower());
+        }
+          
+        /*  //gamepad x and b runs collections servos
+          
+        if (gamepad2.x == true) {
+          collection_servo.setPower(-1);
+          collection_servo2.setPower(1);
+        } else if (gamepad2.b == true) {
+          collection_servo.setPower(1);
+          collection_servo2.setPower(-1);
+          }
+            else {
+              collection_servo2.setPower(.055);
+              collection_servo.setPower(.055);
+            }
+            
+          //hook mechanism code using bumpers
+
+        if (gamepad2.left_bumper == false && gamepad2.right_bumper == false) {
+          motor_alt_pull.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          motor_alt_pull.setTargetPosition(Current_Val3);
+          motor_alt_pull.setPower(1); 
+        } else {
+          motor_alt_pull.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+          if (gamepad2.left_bumper == true){
+            motor_alt_pull.setPower(.25);
+          } else if (gamepad2.right_bumper == true) {
+              motor_alt_pull.setPower(-.25);
+            }
+            Current_Val3 = motor_alt_pull.getCurrentPosition();
+        }
+
+          //gamepad 2 a and y for running elbow code, inlcuding l3 and r3 for auto positions
+
+        if (gamepad2.a == false && gamepad2.y == false) {
+          arm_motor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          if (cancel1) {
+          Current_Val2 = arm_motor2.getCurrentPosition();
+          }
+          if (gamepad2.left_stick_button == true) {
+            arm_motor2.setTargetPosition(-25);
+            arm_motor2.setPower(0.25);
+            cancel1 = true;
+          }
+          else if (gamepad2.right_stick_button == true) {
+            arm_motor2.setTargetPosition(875);
+            arm_motor2.setPower(0.15);
+            cancel1 = true;
+          }
+          else {
+          arm_motor2.setTargetPosition(Current_Val2);
+          cancel1 = false;
+          arm_motor2.setPower(1);
+          }
+        } 
+          else {
+            arm_motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            cancel1 = true;
+            if (gamepad2.a == true){
+              arm_motor2.setPower(-.10);
+            } else if (gamepad2.y == true) {
+              arm_motor2.setPower(.25);
+              }
+            }
+            
+            //gamepad 2 dpad up and down for running arm code, inlcuding l3 and r3 auto positions
+            
+        if (gamepad2.dpad_down == false && gamepad2.dpad_up == false) {
+          arm_motor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          if (cancel2) {
+          Current_Val = arm_motor1.getCurrentPosition();
+          }
+          if (gamepad2.left_stick_button == true) {
+            arm_motor1.setTargetPosition(-1500);
+            arm_motor1.setPower(0.20);
+            cancel2 = true;
+          }
+          else if (gamepad2.right_stick_button == true) {
+            arm_motor1.setTargetPosition(-650);
+            arm_motor1.setPower(0.10);
+            cancel2 = true;
+          }
+          else {
+          arm_motor1.setTargetPosition(Current_Val);
+          cancel2 = false;
+          arm_motor1.setPower(1);
+          }
+        } else {
+          arm_motor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+          cancel2 = true;
+          if (gamepad2.dpad_down == true) {
+            arm_motor1.setPower(0.10);
+          } else if (gamepad2.dpad_up == true) {
+            arm_motor1.setPower(-0.15);
+          }
+        } */
+        
+          telemetry.addLine("Tele-Op is Green!");
+          //telemetry.addData("Target Arm Position", Current_Val);
+          //telemetry.addData("Target Elbow Position", Current_Val2);
+          telemetry.update();
+        
+      }  
     }
-}
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -63,25 +63,25 @@ public class Teleop3 extends LinearOpMode {
         }
           
        private void normalizationDrive(int fl, int bl, int fr, int br) {
-          if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br)){
+          if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br) && Math.abs(fl) > 1){
             motor_drive_fl.setPower(fl / Math.abs(fl));
             motor_drive_fr.setPower(fr / Math.abs(fl));
             motor_drive_bl.setPower(bl / Math.abs(fl));
             motor_drive_br.setPower(br / Math.abs(fl));
           }
-         else if(Math.abs(bl) >= Math.abs(fl) && Math.abs(bl) >= Math.abs(fr) && Math.abs(bl) >= Math.abs(br)){
+         else if(Math.abs(bl) >= Math.abs(fl) && Math.abs(bl) >= Math.abs(fr) && Math.abs(bl) >= Math.abs(br) && Math.abs(bl) > 1){
             motor_drive_fl.setPower(fl / Math.abs(bl));
             motor_drive_fr.setPower(fr / Math.abs(bl));
             motor_drive_bl.setPower(bl / Math.abs(bl));
             motor_drive_br.setPower(br / Math.abs(bl));
          }
-         else if(Math.abs(fr) >= Math.abs(fl) && Math.abs(fr) >= Math.abs(bl) && Math.abs(fr) >= Math.abs(br)){
+         else if(Math.abs(fr) >= Math.abs(fl) && Math.abs(fr) >= Math.abs(bl) && Math.abs(fr) >= Math.abs(br) && Math.abs(fr) > 1){
             motor_drive_fl.setPower(fl / Math.abs(fr));
             motor_drive_fr.setPower(fr / Math.abs(fr));
             motor_drive_bl.setPower(bl / Math.abs(fr));
             motor_drive_br.setPower(br / Math.abs(fr));
          }
-         else if(Math.abs(br) >= Math.abs(bl) && Math.abs(br) >= Math.abs(fr) && Math.abs(br) >= Math.abs(fl)){
+         else if(Math.abs(br) >= Math.abs(bl) && Math.abs(br) >= Math.abs(fr) && Math.abs(br) >= Math.abs(fl) && Math.abs(br) > 1){
             motor_drive_fl.setPower(fl / Math.abs(br));
             motor_drive_fr.setPower(fr / Math.abs(br));
             motor_drive_bl.setPower(bl / Math.abs(br));

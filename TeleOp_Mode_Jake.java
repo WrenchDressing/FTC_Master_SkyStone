@@ -48,9 +48,11 @@ public class JakeTeleOp extends LinearOpMode {
           //motor gamestick algorithm
           
         double fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
         double fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
         double br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        
+        smoothing(fl,bl,fr,br);
                                       
           //right trigger flips motors
           
@@ -63,12 +65,16 @@ public class JakeTeleOp extends LinearOpMode {
 
         
           telemetry.addLine("Tele-Op is Green!");
+          telemetry.addData("FL", motor_drive_fl.getPower());
+          telemetry.addData("FR", motor_drive_fr.getPower());
+          telemetry.addData("BL", motor_drive_bl.getPower());
+          telemetry.addData("BR", motor_drive_br.getPower());
           telemetry.update();
         
       }  
     }
     
-    private void normalizationDrive(int fl, int bl, int fr, int br) {
+    private void normalizationDrive(double fl, double fr, double bl, double br) {
           if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br) && Math.abs(fl) > 1){
             motor_drive_fl.setPower(fl / Math.abs(fl));
             motor_drive_fr.setPower(fr / Math.abs(fl));
@@ -93,5 +99,36 @@ public class JakeTeleOp extends LinearOpMode {
             motor_drive_bl.setPower(bl / Math.abs(br));
             motor_drive_br.setPower(br / Math.abs(br));
          }
+         else{
+            motor_drive_fl.setPower(fl);
+            motor_drive_fr.setPower(fr);
+            motor_drive_bl.setPower(bl);
+            motor_drive_br.setPower(br);
+           
+         }
        }
+       
+      private void smoothing(double fl, double fr, double bl, double br){
+      if(Math.abs(gamepad1.left_stick_x) < 0.33){
+            motor_drive_fl.setPower(fl / 2);
+            motor_drive_fr.setPower(fr / 2);
+            motor_drive_bl.setPower(bl / 2);
+            motor_drive_br.setPower(br / 2);
+          } 
+         else if(Math.abs(gamepad1.left_stick_x) >= 0.33 && Math.abs(gamepad1.left_stick_x) < 0.67){
+            motor_drive_fl.setPower(fl);
+            motor_drive_fr.setPower(fr);
+            motor_drive_bl.setPower(bl);
+            motor_drive_br.setPower(br);
+         }
+         else if(Math.abs(gamepad1.left_stick_x) >= 0.67){
+            motor_drive_fl.setPower(fl * (3/2));
+            motor_drive_fr.setPower(fr * (3/2));
+            motor_drive_bl.setPower(bl * (3/2));
+            motor_drive_br.setPower(br * (3/2));
+         }
+    
+    }
   } 
+  
+

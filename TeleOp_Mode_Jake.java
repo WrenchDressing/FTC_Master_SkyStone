@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "Teleop3 (Blocks to Java)", group = "")
-public class Teleop3 extends LinearOpMode {
+@TeleOp(name = "JakeTeleOp", group = "")
+public class JakeTeleOp extends LinearOpMode {
 
   private DcMotor motor_drive_fl;
   private DcMotor motor_drive_bl;

@@ -25,7 +25,6 @@ public class JakeTeleOp extends LinearOpMode {
     motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
     motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
     motor_drive_br = hardwareMap.dcMotor.get("motor_drive_br");
-    motor_alt_pull = hardwareMap.dcMotor.get("motor_alt_pull");
     motor_drive_br.setDirection(DcMotorSimple.Direction.REVERSE);
     motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
     motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -61,14 +60,21 @@ public class JakeTeleOp extends LinearOpMode {
           motor_drive_br.setPower(-motor_drive_br.getPower());
           motor_drive_bl.setPower(-motor_drive_bl.getPower());
         }
-          
-       private void normalizationDrive(int fl, int bl, int fr, int br) {
+       
+        
+          telemetry.addLine("Tele-Op is Green!");
+          telemetry.update();
+        
+      }  
+    }
+    
+    private void normalizationDrive(int fl, int bl, int fr, int br) {
           if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br) && Math.abs(fl) > 1){
             motor_drive_fl.setPower(fl / Math.abs(fl));
             motor_drive_fr.setPower(fr / Math.abs(fl));
             motor_drive_bl.setPower(bl / Math.abs(fl));
             motor_drive_br.setPower(br / Math.abs(fl));
-          }
+          } 
          else if(Math.abs(bl) >= Math.abs(fl) && Math.abs(bl) >= Math.abs(fr) && Math.abs(bl) >= Math.abs(br) && Math.abs(bl) > 1){
             motor_drive_fl.setPower(fl / Math.abs(bl));
             motor_drive_fr.setPower(fr / Math.abs(bl));
@@ -88,22 +94,4 @@ public class JakeTeleOp extends LinearOpMode {
             motor_drive_br.setPower(br / Math.abs(br));
          }
        }
-        
-       private int AbsoluteVal (int num){
-         if(num > 0){
-           return num;
-         }
-         else if(num < 0){
-           return num * -1;
-         }
-         else{
-           return num;
-         }
-       }
-        
-          telemetry.addLine("Tele-Op is Green!");
-          telemetry.update();
-        
-      }  
-    }
   } 

@@ -40,17 +40,17 @@ public class JakeTeleOp extends LinearOpMode {
           //left trigger slows motors
           
         if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = .25;
+          slowerMode = 0.25;
         } else {
             slowerMode = 1.0;
         }
         
           //motor gamestick algorithm
           
-        int fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        int bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        int fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        int br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x)* slowerMode;
+        double fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
                                       
           //right trigger flips motors
           
@@ -60,7 +60,7 @@ public class JakeTeleOp extends LinearOpMode {
           motor_drive_br.setPower(-motor_drive_br.getPower());
           motor_drive_bl.setPower(-motor_drive_bl.getPower());
         }
-       
+
         
           telemetry.addLine("Tele-Op is Green!");
           telemetry.update();

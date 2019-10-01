@@ -116,19 +116,17 @@ public class JakeTeleOp extends LinearOpMode {
             motor_drive_br.setPower(br / 2);
           } 
          else if(Math.abs(gamepad1.left_stick_x) >= 0.33 && Math.abs(gamepad1.left_stick_x) < 0.67){
-            motor_drive_fl.setPower(fl);
-            motor_drive_fr.setPower(fr);
-            motor_drive_bl.setPower(bl);
-            motor_drive_br.setPower(br);
+            motor_drive_fl.setPower(fl - 0.16);
+            motor_drive_fr.setPower(fr - 0.16);
+            motor_drive_bl.setPower(bl - 0.16);
+            motor_drive_br.setPower(br - 0.16);
          }
          else if(Math.abs(gamepad1.left_stick_x) >= 0.67){
-            motor_drive_fl.setPower(fl * (3/2));
-            motor_drive_fr.setPower(fr * (3/2));
-            motor_drive_bl.setPower(bl * (3/2));
-            motor_drive_br.setPower(br * (3/2));
+            motor_drive_fl.setPower(fl * (3/2) - 0.16);
+            motor_drive_fr.setPower(fr * (3/2) - 0.16);
+            motor_drive_bl.setPower(bl * (3/2) - 0.16);
+            motor_drive_br.setPower(br * (3/2) - 0.16);
          }
     
     }
   } 
-  
-

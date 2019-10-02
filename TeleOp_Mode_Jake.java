@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;            
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,18 +14,25 @@ public class JakeTeleOp extends LinearOpMode {
   private DcMotor motor_drive_bl;
   private DcMotor motor_drive_fr;
   private DcMotor motor_drive_br;
+  private Servo servo_Kaleb;
+  private double fl;
+  private double fr;
+  private double bl;
+  private double br;
+  private double slowerMode;
+  
     /**
    * This function is executed when this Op Mode is selected from the Driver Station.
    */
 
   public void runOpMode() {
     
-    double slowerMode;
     
     motor_drive_fl = hardwareMap.dcMotor.get("motor_drive_fl");
     motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
     motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
     motor_drive_br = hardwareMap.dcMotor.get("motor_drive_br");
+    servo_Kaleb = hardwareMap.servo.get("servo_Kaleb");
     motor_drive_br.setDirection(DcMotorSimple.Direction.REVERSE);
     motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
     motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -45,14 +53,22 @@ public class JakeTeleOp extends LinearOpMode {
             slowerMode = 1.0;
         }
         
+        
           //motor gamestick algorithm
           
-        double fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        double fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        double br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        //double fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        //double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        //double fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        //double br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
         
-        smoothing(fl,bl,fr,br);
+        //insert drive mode(standard or normalization)
+        
+        if (gamepad1.a) {
+            smoothing();
+        }
+        
+        normalizationDrive(fl, fr, bl, br);
+        
                                       
           //right trigger flips motors
           
@@ -61,6 +77,10 @@ public class JakeTeleOp extends LinearOpMode {
           motor_drive_fr.setPower(-motor_drive_fr.getPower());
           motor_drive_br.setPower(-motor_drive_br.getPower());
           motor_drive_bl.setPower(-motor_drive_bl.getPower());
+        }
+        
+        if (gamepad1.x){
+          servo_Kaleb.setPosition(0.9);
         }
 
         
@@ -72,6 +92,19 @@ public class JakeTeleOp extends LinearOpMode {
           telemetry.update();
         
       }  
+    }
+    
+    private void standardDrive(){
+      
+        fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        
+        motor_drive_fl.setPower(fl);
+        motor_drive_fr.setPower(fr);
+        motor_drive_bl.setPower(bl);
+        motor_drive_br.setPower(br);
     }
     
     private void normalizationDrive(double fl, double fr, double bl, double br) {
@@ -100,33 +133,85 @@ public class JakeTeleOp extends LinearOpMode {
             motor_drive_br.setPower(br / Math.abs(br));
          }
          else{
-            motor_drive_fl.setPower(fl);
-            motor_drive_fr.setPower(fr);
-            motor_drive_bl.setPower(bl);
-            motor_drive_br.setPower(br);
+            motor_drive_fl.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
+            motor_drive_fr.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
+            motor_drive_bl.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode);
+            motor_drive_br.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode);
            
          }
        }
        
-      private void smoothing(double fl, double fr, double bl, double br){
-      if(Math.abs(gamepad1.left_stick_x) < 0.33){
-            motor_drive_fl.setPower(fl / 2);
-            motor_drive_fr.setPower(fr / 2);
-            motor_drive_bl.setPower(bl / 2);
-            motor_drive_br.setPower(br / 2);
+      private void smoothing(){
+        double sLX = gamepad1.left_stick_x;
+        double sLY = gamepad1.left_stick_y;
+        double sRX = gamepad1.right_stick_x;
+        
+        if(Math.abs(gamepad1.left_stick_x) < 0.33){
+            sLX = (sLX / 2);
           } 
          else if(Math.abs(gamepad1.left_stick_x) >= 0.33 && Math.abs(gamepad1.left_stick_x) < 0.67){
-            motor_drive_fl.setPower(fl - 0.16);
-            motor_drive_fr.setPower(fr - 0.16);
-            motor_drive_bl.setPower(bl - 0.16);
-            motor_drive_br.setPower(br - 0.16);
+           if(gamepad1.left_stick_x > 0){
+             sLX = (sLX - 0.16);
+           }
+           else{
+             sLX = (sLX + 0.16);
+           }
          }
          else if(Math.abs(gamepad1.left_stick_x) >= 0.67){
-            motor_drive_fl.setPower(fl * (3/2) - 0.16);
-            motor_drive_fr.setPower(fr * (3/2) - 0.16);
-            motor_drive_bl.setPower(bl * (3/2) - 0.16);
-            motor_drive_br.setPower(br * (3/2) - 0.16);
+           if(gamepad1.left_stick_x > 0){
+            sLX = (sLX * (3/2) - 0.16);
+           }
+           else{
+            sLX = (sLX * (3/2) + 0.16);
+           }
          }
-    
-    }
+         
+         if(Math.abs(gamepad1.left_stick_x) < 0.33){
+            sLX = (sLX / 2);
+          } 
+         else if(Math.abs(gamepad1.left_stick_y) >= 0.33 && Math.abs(gamepad1.left_stick_y) < 0.67){
+           if(gamepad1.left_stick_y > 0){
+             sLY = (sLY - 0.16);
+           }
+           else{
+             sLY = (sLY + 0.16);
+           }
+         }
+         else if(Math.abs(gamepad1.left_stick_y) >= 0.67){
+           if(gamepad1.left_stick_y > 0){
+            sLY = (sLY * (3/2) - 0.16);
+           }
+           else{
+            sLY = (sLY * (3/2) + 0.16);
+           }
+         }
+         
+         if(Math.abs(gamepad1.right_stick_x) < 0.33){
+            sRX = (sRX / 2);
+          } 
+         else if(Math.abs(gamepad1.right_stick_x) >= 0.33 && Math.abs(gamepad1.right_stick_x) < 0.67){
+           if(gamepad1.right_stick_x > 0){
+             sRX = (sRX - 0.16);
+           }
+           else{
+             sRX = (sRX + 0.16);
+           }
+         }
+         else if(Math.abs(gamepad1.right_stick_x) >= 0.67){
+           if(gamepad1.right_stick_x > 0){
+            sRX = (sRX * (3/2) - 0.16);
+           }
+           else{
+            sRX = (sRX * (3/2) + 0.16);
+           }
+         }
+         
+         fl = (sLY - sLX - sRX) * slowerMode;
+         bl = (-sLY - sLX + sRX) * slowerMode;
+         fr = (-sLY - sLX - sRX) * slowerMode;
+         br = (sLY - sLX + sRX) * slowerMode;
+         
+      }
   } 
+  
+

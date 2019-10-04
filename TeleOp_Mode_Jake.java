@@ -15,11 +15,11 @@ public class JakeTeleOp extends LinearOpMode {
   private DcMotor motor_drive_fr;
   private DcMotor motor_drive_br;
   private Servo servo_Kaleb;
-  private double fl;
-  private double fr;
-  private double bl;
-  private double br;
-  private double slowerMode;
+  public double fl_pow;
+  public double fr_pow;
+  public double bl_pow;
+  public double br_pow;
+  public double slowerMode;
   
     /**
    * This function is executed when this Op Mode is selected from the Driver Station.
@@ -56,18 +56,23 @@ public class JakeTeleOp extends LinearOpMode {
         
           //motor gamestick algorithm
           
-        //double fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        //double bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        //double fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        //double br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        //double fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        //double bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        //double fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        //double br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
         
         //insert drive mode(standard or normalization)
         
         if (gamepad1.a) {
             smoothing();
+        } else {
+            fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+            bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+            fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+            br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
         }
         
-        normalizationDrive(fl, fr, bl, br);
+        normalizationDrive(fl_pow, fr_pow, bl_pow, br_pow);
         
                                       
           //right trigger flips motors
@@ -78,6 +83,13 @@ public class JakeTeleOp extends LinearOpMode {
           motor_drive_br.setPower(-motor_drive_br.getPower());
           motor_drive_bl.setPower(-motor_drive_bl.getPower());
         }
+        
+          //motor powering
+          
+        motor_drive_fl.setPower(fl_pow);
+        motor_drive_fr.setPower(fr_pow);
+        motor_drive_bl.setPower(bl_pow);
+        motor_drive_br.setPower(br_pow);
         
         if (gamepad1.x){
           servo_Kaleb.setPosition(0.9);
@@ -96,48 +108,37 @@ public class JakeTeleOp extends LinearOpMode {
     
     private void standardDrive(){
       
-        fl = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        bl = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        fr = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        br = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
         
-        motor_drive_fl.setPower(fl);
-        motor_drive_fr.setPower(fr);
-        motor_drive_bl.setPower(bl);
-        motor_drive_br.setPower(br);
     }
     
     private void normalizationDrive(double fl, double fr, double bl, double br) {
           if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br) && Math.abs(fl) > 1){
-            motor_drive_fl.setPower(fl / Math.abs(fl));
-            motor_drive_fr.setPower(fr / Math.abs(fl));
-            motor_drive_bl.setPower(bl / Math.abs(fl));
-            motor_drive_br.setPower(br / Math.abs(fl));
+            fl_pow = (fl / Math.abs(fl));
+            fr_pow = (fr / Math.abs(fl));
+            bl_pow = (bl / Math.abs(fl));
+            br_pow = (br / Math.abs(fl));
           } 
          else if(Math.abs(bl) >= Math.abs(fl) && Math.abs(bl) >= Math.abs(fr) && Math.abs(bl) >= Math.abs(br) && Math.abs(bl) > 1){
-            motor_drive_fl.setPower(fl / Math.abs(bl));
-            motor_drive_fr.setPower(fr / Math.abs(bl));
-            motor_drive_bl.setPower(bl / Math.abs(bl));
-            motor_drive_br.setPower(br / Math.abs(bl));
+            fl_pow = (fl / Math.abs(bl));
+            fr_pow = (fr / Math.abs(bl));
+            bl_pow = (bl / Math.abs(bl));
+            br_pow = (br / Math.abs(bl));
          }
          else if(Math.abs(fr) >= Math.abs(fl) && Math.abs(fr) >= Math.abs(bl) && Math.abs(fr) >= Math.abs(br) && Math.abs(fr) > 1){
-            motor_drive_fl.setPower(fl / Math.abs(fr));
-            motor_drive_fr.setPower(fr / Math.abs(fr));
-            motor_drive_bl.setPower(bl / Math.abs(fr));
-            motor_drive_br.setPower(br / Math.abs(fr));
+            fl_pow = (fl / Math.abs(fr));
+            fr_pow = (fr / Math.abs(fr));
+            bl_pow = (bl / Math.abs(fr));
+            br_pow = (br / Math.abs(fr));
          }
          else if(Math.abs(br) >= Math.abs(bl) && Math.abs(br) >= Math.abs(fr) && Math.abs(br) >= Math.abs(fl) && Math.abs(br) > 1){
-            motor_drive_fl.setPower(fl / Math.abs(br));
-            motor_drive_fr.setPower(fr / Math.abs(br));
-            motor_drive_bl.setPower(bl / Math.abs(br));
-            motor_drive_br.setPower(br / Math.abs(br));
-         }
-         else{
-            motor_drive_fl.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
-            motor_drive_fr.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode);
-            motor_drive_bl.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode);
-            motor_drive_br.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode);
-           
+            fl_pow = (fl / Math.abs(br));
+            fr_pow = (fr / Math.abs(br));
+            bl_pow = (bl / Math.abs(br));
+            br_pow = (br / Math.abs(br));
          }
        }
        
@@ -159,10 +160,10 @@ public class JakeTeleOp extends LinearOpMode {
          }
          else if(Math.abs(gamepad1.left_stick_x) >= 0.67){
            if(gamepad1.left_stick_x > 0){
-            sLX = (sLX * (3/2) - 0.16);
+            sLX = (sLX * (3/2) - 0.50);
            }
            else{
-            sLX = (sLX * (3/2) + 0.16);
+            sLX = (sLX * (3/2) + 0.50);
            }
          }
          
@@ -179,10 +180,10 @@ public class JakeTeleOp extends LinearOpMode {
          }
          else if(Math.abs(gamepad1.left_stick_y) >= 0.67){
            if(gamepad1.left_stick_y > 0){
-            sLY = (sLY * (3/2) - 0.16);
+            sLY = (sLY * (3/2) - 0.50);
            }
            else{
-            sLY = (sLY * (3/2) + 0.16);
+            sLY = (sLY * (3/2) + 0.50);
            }
          }
          
@@ -199,19 +200,18 @@ public class JakeTeleOp extends LinearOpMode {
          }
          else if(Math.abs(gamepad1.right_stick_x) >= 0.67){
            if(gamepad1.right_stick_x > 0){
-            sRX = (sRX * (3/2) - 0.16);
+            sRX = (sRX * (3/2) - 0.50);
            }
            else{
-            sRX = (sRX * (3/2) + 0.16);
+            sRX = (sRX * (3/2) + 0.50);
            }
          }
          
-         fl = (sLY - sLX - sRX) * slowerMode;
-         bl = (-sLY - sLX + sRX) * slowerMode;
-         fr = (-sLY - sLX - sRX) * slowerMode;
-         br = (sLY - sLX + sRX) * slowerMode;
+         fl_pow = (sLY - sLX - sRX) * slowerMode;
+         bl_pow = (-sLY - sLX + sRX) * slowerMode;
+         fr_pow = (-sLY - sLX - sRX) * slowerMode;
+         br_pow = (sLY - sLX + sRX) * slowerMode;
          
       }
   } 
   
-

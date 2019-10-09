@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "Teleop3 (Blocks to Java)", group = "")
+//change the name below to the name of your class
+@TeleOp(name = "Whatever your name is", group = "")
 public class Teleop3 extends LinearOpMode {
 
   //initialize motors, servos and sensors here

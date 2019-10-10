@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="Auto_Mode_Jake.java", group="")
+@Autonomous(name="Auto_Mode_Jake", group="")
 @Disabled
-public class Auto_Mode_Jake.java extends LinearOpMode {
+public class Auto_Mode_Jake extends LinearOpMode {
 }

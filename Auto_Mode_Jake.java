@@ -25,5 +25,21 @@ public class Auto_Mode_Jake extends LinearOpMode {
   public double br_pow;
   public double slowerMode;
   
+  public void runOpMode() {
+    
+    
+    motor_drive_fl = hardwareMap.dcMotor.get("motor_drive_fl");
+    motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
+    motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
+    motor_drive_br = hardwareMap.dcMotor.get("motor_drive_br");
+    servo_Kaleb = hardwareMap.servo.get("servo_Kaleb");
+    motor_drive_br.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    
+    waitForStart();
   
 }

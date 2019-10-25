@@ -173,8 +173,8 @@ public class JakeTeleOp extends LinearOpMode {
            }
          }
          
-         if(Math.abs(gamepad1.left_stick_x) < 0.33){
-            sLX = (sLX / 2);
+         if(Math.abs(gamepad1.left_stick_y) < 0.33){
+            sLY = (sLY / 2);
           } 
          else if(Math.abs(gamepad1.left_stick_y) >= 0.33 && Math.abs(gamepad1.left_stick_y) < 0.67){
            if(gamepad1.left_stick_y > 0){

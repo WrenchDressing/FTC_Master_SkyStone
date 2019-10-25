@@ -106,6 +106,8 @@ public class JakeTeleOp extends LinearOpMode {
       }  
     }
     
+    //standard drive algorithm
+  
     private void standardDrive(){
       
         fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
@@ -115,6 +117,8 @@ public class JakeTeleOp extends LinearOpMode {
         
     }
     
+    //normalized standard drive algorithm
+  
     private void normalizationDrive(double fl, double fr, double bl, double br) {
           if(Math.abs(fl) >= Math.abs(bl) && Math.abs(fl) >= Math.abs(fr) && Math.abs(fl) >= Math.abs(br) && Math.abs(fl) > 1){
             fl_pow = (fl / Math.abs(fl));
@@ -142,6 +146,8 @@ public class JakeTeleOp extends LinearOpMode {
          }
        }
        
+      //smoothed out driving algorithm (finer movement becomes finer, faster movement comes faster)
+  
       private void smoothing(){
         double sLX = gamepad1.left_stick_x;
         double sLY = gamepad1.left_stick_y;

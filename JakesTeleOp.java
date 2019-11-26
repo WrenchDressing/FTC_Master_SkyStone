@@ -21,7 +21,10 @@ public class JakesTeleOp extends LinearOpMode {
   public double bl_pow;
   public double br_pow;
   public double slowerMode;
-   private Servo GrabberL;
+  public double[10] smoothArrayLX;
+  public double[10] smoothArrayLY;
+  public double[10] smoothArrayRX;
+  private Servo GrabberL;
   private Servo GrabberR;
   private Servo FoundationServoL;
   private Servo FoundationServoR;
@@ -129,6 +132,8 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
         
         if (gamepad1.a) {
             smoothing();
+        } else if (gamepad1.x) {
+            newSmoothing();
         } else {
             fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
             bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
@@ -283,4 +288,30 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
          br_pow = (sLY - sLX + sRX) * slowerMode;
          
       }
-  } 
+      
+      private void newSmoothing(){
+        private double totalLX;
+        private double totalLY;
+        private double totalRX;
+        for(int i = 9; i >= 0; i--){
+          totalLX = totalLX + smoothArrayLX[i];
+          smoothArrayLX[i] = smoothArrayLX[i+1];
+        }
+        for(int i = 9; i >= 0; i--){
+          totalRX = totalRX = smoothArrayRX[i];
+          smoothArrayRX[i] = smoothArrayRX[i+1];
+        }
+        for(int i = 9; i >= 0; i--){
+          totalLY = totalLY + smoothArrayLY[i];
+          smoothArrayLY[i] = smoothArrayLY[i+1];
+        }
+        totalLX = (totalLX + gamepad1.left_stick_x) / 10;
+        totalLY = (totalLY + gamepad1.left_stick_y) / 10;
+        totalRX = (totalRX + gamepad1.right_stick_x) / 10;
+        
+        fl_pow = (totalLY - totalLX - totalRX) * slowerMode;
+        bl_pow = (-totalLY - totalLX + totalRX) * slowerMode;
+        fr_pow = (-totalLY - totalLX - totalRX) * slowerMode;
+        br_pow = (totalLY - totalLX + totalRX) * slowerMode;
+        
+      } 

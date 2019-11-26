@@ -112,7 +112,7 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
     
   
         if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = 0.25;
+          slowerMode = 0.10;
         } else {
             slowerMode = 1.0;
         }

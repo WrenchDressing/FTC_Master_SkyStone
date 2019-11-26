@@ -48,7 +48,7 @@ public class JakeTeleOp extends LinearOpMode {
           //left trigger slows motors
           
         if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = 0.25;
+          slowerMode = 0.10;
         } else {
             slowerMode = 1.0;
         }

@@ -290,21 +290,24 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
       }
       
       private void newSmoothing(){
-        private double totalLX;
-        private double totalLY;
-        private double totalRX;
-        for(int i = 9; i >= 0; i--){
+        private double totalLX = 0;
+        private double totalLY = 0;
+        private double totalRX = 0;
+        for(int i = 8; i >= 0; i--){
           totalLX = totalLX + smoothArrayLX[i];
           smoothArrayLX[i] = smoothArrayLX[i+1];
         }
-        for(int i = 9; i >= 0; i--){
-          totalRX = totalRX = smoothArrayRX[i];
+        for(int i = 8; i >= 0; i--){
+          totalRX = totalRX + smoothArrayRX[i];
           smoothArrayRX[i] = smoothArrayRX[i+1];
         }
-        for(int i = 9; i >= 0; i--){
+        for(int i = 8; i >= 0; i--){
           totalLY = totalLY + smoothArrayLY[i];
           smoothArrayLY[i] = smoothArrayLY[i+1];
         }
+        smoothArrayLX[0] = gamepad1.left_stick_x;
+        smoothArrayLY[0] = gamepad1.left_stick_y;
+        smoothArrayRX[0] = gamepad1.right_stick_x;
         totalLX = (totalLX + gamepad1.left_stick_x) / 10;
         totalLY = (totalLY + gamepad1.left_stick_y) / 10;
         totalRX = (totalRX + gamepad1.right_stick_x) / 10;

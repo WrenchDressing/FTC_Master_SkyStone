@@ -21,9 +21,9 @@ public class JakesTeleOp extends LinearOpMode {
   public double bl_pow;
   public double br_pow;
   public double slowerMode;
-  public double[10] smoothArrayLX;
-  public double[10] smoothArrayLY;
-  public double[10] smoothArrayRX;
+  public double[] smoothArrayLX = new double[10];
+  public double[] smoothArrayLY = new double[10];
+  public double[] smoothArrayRX = new double[10];
   private Servo GrabberL;
   private Servo GrabberR;
   private Servo FoundationServoL;
@@ -290,9 +290,9 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
       }
       
       private void newSmoothing(){
-        private double totalLX = 0;
-        private double totalLY = 0;
-        private double totalRX = 0;
+        double totalLX = 0;
+        double totalLY = 0;
+        double totalRX = 0;
         for(int i = 8; i >= 0; i--){
           totalLX = totalLX + smoothArrayLX[i];
           smoothArrayLX[i] = smoothArrayLX[i+1];
@@ -317,4 +317,5 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
         fr_pow = (-totalLY - totalLX - totalRX) * slowerMode;
         br_pow = (totalLY - totalLX + totalRX) * slowerMode;
         
-      } 
+      }
+}

@@ -21,9 +21,12 @@ public class JakesTeleOp extends LinearOpMode {
   public double bl_pow;
   public double br_pow;
   public double slowerMode;
-  public double[] smoothArrayLX = new double[10];
-  public double[] smoothArrayLY = new double[10];
-  public double[] smoothArrayRX = new double[10];
+  public double[] smoothArrayLX = new double[100];
+  public double[] smoothArrayLY = new double[100];
+  public double[] smoothArrayRX = new double[100];
+  double totalLX = 0.0;
+  double totalLY = 0.0;
+  double totalRX = 0.0;
   private Servo GrabberL;
   private Servo GrabberR;
   private Servo FoundationServoL;
@@ -45,8 +48,8 @@ public class JakesTeleOp extends LinearOpMode {
     WristMotor = hardwareMap.dcMotor.get("WristMotor");
       GrabberL = hardwareMap.servo.get("GrabberL");
     GrabberR = hardwareMap.servo.get("GrabberR");
-    motor_drive_br.setDirection(DcMotorSimple.Direction.REVERSE);
-    motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_fr.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_fl.setDirection(DcMotorSimple.Direction.REVERSE);
     motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -67,7 +70,7 @@ public class JakesTeleOp extends LinearOpMode {
      
       while (opModeIsActive()) {
 
-  telemetry.addData("LiftyMotorCurrentPosition", LiftyMotor.getCurrentPosition());
+  //telemetry.addData("LiftyMotorCurrentPosition", LiftyMotor.getCurrentPosition());
    telemetry.update();
            GrabberVariable = 1;
       // Put run blocks here.
@@ -115,7 +118,7 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
     
   
         if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = 0.10;
+          slowerMode = 0.15;
         } else {
             slowerMode = 1.0;
         }
@@ -132,7 +135,7 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
         
         if (gamepad1.a) {
             smoothing();
-        } else if (gamepad1.x) {
+        } else if (gamepad1.right_bumper) {
             newSmoothing();
         } else {
             fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
@@ -290,27 +293,38 @@ if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() > -11000) {
       }
       
       private void newSmoothing(){
-        double totalLX = 0;
-        double totalLY = 0;
-        double totalRX = 0;
-        for(int i = 8; i >= 0; i--){
-          totalLX = totalLX + smoothArrayLX[i];
-          smoothArrayLX[i] = smoothArrayLX[i+1];
+          
+        totalLX = 0;
+        totalLY = 0;
+        totalRX = 0;
+        
+        for(int i = (smoothArrayLX.length - 2); i >= 0; i--){
+          smoothArrayLX[i] = smoothArrayLX[(i+1)];
+          smoothArrayRX[i] = smoothArrayRX[(i+1)];
+          smoothArrayLY[i] = smoothArrayLY[(i+1)];
         }
-        for(int i = 8; i >= 0; i--){
-          totalRX = totalRX + smoothArrayRX[i];
-          smoothArrayRX[i] = smoothArrayRX[i+1];
-        }
-        for(int i = 8; i >= 0; i--){
-          totalLY = totalLY + smoothArrayLY[i];
-          smoothArrayLY[i] = smoothArrayLY[i+1];
-        }
+        
         smoothArrayLX[0] = gamepad1.left_stick_x;
         smoothArrayLY[0] = gamepad1.left_stick_y;
         smoothArrayRX[0] = gamepad1.right_stick_x;
-        totalLX = (totalLX + gamepad1.left_stick_x) / 10;
-        totalLY = (totalLY + gamepad1.left_stick_y) / 10;
-        totalRX = (totalRX + gamepad1.right_stick_x) / 10;
+        
+        for(int i = 0; i < smoothArrayLX.length; i++){
+          totalLX = totalLX + smoothArrayLX[i];
+        }
+        for(int i = 0; i < smoothArrayLY.length; i++){
+          totalLY = totalLY + smoothArrayLY[i];
+        }
+        for(int i = 0; i < smoothArrayRX.length; i++){
+          totalRX = totalRX + smoothArrayRX[i];
+        }
+        
+        totalLX = totalLX / 100;
+        totalLY = totalLY / 100;
+        totalRX = totalRX / 100;
+        
+        totalLX = totalLX * 70;
+        totalLY = totalLY * 70;
+        totalRX = totalRX * 70;
         
         fl_pow = (totalLY - totalLX - totalRX) * slowerMode;
         bl_pow = (-totalLY - totalLX + totalRX) * slowerMode;

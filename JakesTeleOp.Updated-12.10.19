@@ -200,7 +200,15 @@ public class JakesTeleOp extends LinearOpMode {
             slowerMode = 0.8;
         }
         
-   // Here I will put in code to change the slowermode value to fine tune the driving values for Kaleb
+        if(gamepad1.dpad_left && tester){
+          slowerMode -= 0.01;
+          tester = false;
+        } else if(gamepad1.dpad_right && tester){
+          slowerMode += 0.01;
+          tester = false;
+        } else {
+          tester = true;
+        }
         
         
         //motor gamestick algorithm
@@ -251,6 +259,7 @@ public class JakesTeleOp extends LinearOpMode {
         telemetry.addData("FR", motor_drive_fr.getPower());
         telemetry.addData("BL", motor_drive_bl.getPower());
         telemetry.addData("BR", motor_drive_br.getPower());
+        telemetry.addData("Tweaking Value ", slowerMode);
         telemetry.update();
         
       }  

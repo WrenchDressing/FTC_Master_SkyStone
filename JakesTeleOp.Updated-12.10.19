@@ -35,6 +35,7 @@ public class JakesTeleOp extends LinearOpMode {
   private boolean gamepad2LeftBumperLastState;  // remember what the bumper button's state was on the last scan
   private boolean FoundationServoEngaged;
   private int target;
+  boolean tester =false;
     /**
    * This function is executed when this Op Mode is selected from the Driver Station.
    */
@@ -105,6 +106,8 @@ public class JakesTeleOp extends LinearOpMode {
           gamepad2LeftBumperLastState = false;
         }
         */
+       
+       
         if ((gamepad2.left_bumper)) {
           FoundationServoL.setPosition(1);
            FoundationServoR.setPosition(0);
@@ -122,6 +125,7 @@ public class JakesTeleOp extends LinearOpMode {
         else {
           WristMotor.setPower(0);
         }
+        
 
 /*        if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() <= 6500) {
             LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -178,6 +182,7 @@ public class JakesTeleOp extends LinearOpMode {
             LiftyMotor.setPower(0.5);
           }
 
+
         if (gamepad2.a) {
           GrabberR.setPosition(0.15);
           GrabberL.setPosition(0.15);
@@ -187,21 +192,27 @@ public class JakesTeleOp extends LinearOpMode {
             GrabberL.setPosition(0.5);
         }
     
+        // Toggle Creep Mode with left trigger
+        
         if (gamepad1.left_trigger >= 0.5) {
           slowerMode = 0.15;
         } else {
             slowerMode = 0.8;
         }
         
+   // Here I will put in code to change the slowermode value to fine tune the driving values for Kaleb
         
-          //motor gamestick algorithm
+        
+        //motor gamestick algorithm
           
-        //double fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        //double bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        //double fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        //double br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        /*
+        double fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        double fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
+        double br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        */
         
-        //insert drive mode(standard or normalization)
+        //Depending on the inputs, the driver can have the drivetrain run on smoothing, new smoothing, or standard drives
         
         if (gamepad1.a) {
             smoothing();
@@ -217,7 +228,7 @@ public class JakesTeleOp extends LinearOpMode {
         normalizationDrive(fl_pow, fr_pow, bl_pow, br_pow);
         
                                       
-          //right trigger flips motors
+        //right trigger flips motors
           
         if (gamepad1.right_trigger == 1) {
           motor_drive_fl.setPower(-motor_drive_fl.getPower());
@@ -226,24 +237,21 @@ public class JakesTeleOp extends LinearOpMode {
           motor_drive_bl.setPower(-motor_drive_bl.getPower());
         }
         
-          //motor powering
+        //motor powering
           
         motor_drive_fl.setPower(fl_pow);
         motor_drive_fr.setPower(fr_pow);
         motor_drive_bl.setPower(bl_pow);
-        motor_drive_br.setPower(br_pow);
-        
-        //if (gamepad1.x){
-          //servo_Kaleb.setPosition(0.9);
-     //   }
+        motor_drive_br.setPower(br_pow)
 
+        //standard telemetry updates to check on values in real time
         
-          telemetry.addLine("Tele-Op is Green!");
-          telemetry.addData("FL", motor_drive_fl.getPower());
-          telemetry.addData("FR", motor_drive_fr.getPower());
-          telemetry.addData("BL", motor_drive_bl.getPower());
-          telemetry.addData("BR", motor_drive_br.getPower());
-          telemetry.update();
+        telemetry.addLine("Tele-Op is Green!");
+        telemetry.addData("FL", motor_drive_fl.getPower());
+        telemetry.addData("FR", motor_drive_fr.getPower());
+        telemetry.addData("BL", motor_drive_bl.getPower());
+        telemetry.addData("BR", motor_drive_br.getPower());
+        telemetry.update();
         
       }  
   }

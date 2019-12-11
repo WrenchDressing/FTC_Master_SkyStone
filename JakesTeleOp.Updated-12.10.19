@@ -200,6 +200,8 @@ public class JakesTeleOp extends LinearOpMode {
             slowerMode = 0.8;
         }
         
+        // New tweaking of slowerMode in order to get the optimal settings for Kaleb
+        
         if(gamepad1.dpad_left && tester){
           slowerMode -= 0.01;
           tester = false;

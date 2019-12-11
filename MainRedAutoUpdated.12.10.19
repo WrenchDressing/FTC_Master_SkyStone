@@ -1,0 +1,689 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaSkyStone;
+
+@Autonomous(name = "BlockSideRedQual2 (Blocks to Java)", group = "")
+public class BlockSideRedQual2 extends LinearOpMode {
+
+  private BNO055IMU imu;
+  private DcMotor motor_drive_br;
+  private DcMotor motor_drive_fr;
+  private DcMotor motor_drive_bl;
+  private DcMotor motor_drive_fl;
+  private DcMotor WristMotor;
+  private DcMotor LiftyMotor;
+  private Servo GrabberR;
+  private Servo FoundationServoL;
+  private Servo FoundationServoR;
+  private VuforiaSkyStone vuforiaSkyStone;
+  private DcMotor Light_DcMotor;
+  private Servo GrabberL;
+
+  /**
+   * Describe this function...
+   */
+  private void Initialization() {
+    imuParameters = new BNO055IMU.Parameters();
+    // Use degrees as angle unit.
+    TimerA = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+    // Express acceleration as m/s^2.
+    imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    // Disable logging.
+    imuParameters.loggingEnabled = false;
+    // Initialize IMU.
+    imu.initialize(imuParameters);
+    // Prompt user to press start buton.
+    telemetry.addData("IMU Example", "Press start to continue...");
+    telemetry.update();
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    gravity = imu.getGravity();
+    CurrentHeading = angles.firstAngle;
+    telemetry.addData("Done with IMU", "Done with motor init");
+    telemetry.update();
+    motor_drive_br.setDirection(DcMotorSimple.Direction.FORWARD);
+    motor_drive_fr.setDirection(DcMotorSimple.Direction.FORWARD);
+    motor_drive_bl.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_fl.setDirection(DcMotorSimple.Direction.REVERSE);
+    motor_drive_fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    WristMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    WristMotor.setTargetPosition(0);
+    WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    LiftyMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    LiftyMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    LiftyMotor.setTargetPosition(0);
+    LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    // Initialize Vuforia
+    GrabberR.setDirection(Servo.Direction.REVERSE);
+    FoundationServoL.setPosition(0);
+    FoundationServoR.setPosition(1);
+    BlockPositionLeft_ = 0;
+    BlockPositionMiddle_ = 0;
+    BlockPositionRight_ = 0;
+    initVuforia();
+    // Activate here for camera preview.
+    vuforiaSkyStone.activate();
+  }
+
+  /**
+   * This function is executed when this Op Mode is selected from the Driver Station.
+   */
+  @Override
+  public void runOpMode() {
+    imu = hardwareMap.get(BNO055IMU.class, "imu");
+    motor_drive_br = hardwareMap.dcMotor.get("motor_drive_br");
+    motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
+    motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
+    motor_drive_fl = hardwareMap.dcMotor.get("motor_drive_fl");
+    WristMotor = hardwareMap.dcMotor.get("WristMotor");
+    LiftyMotor = hardwareMap.dcMotor.get("LiftyMotor");
+    GrabberR = hardwareMap.servo.get("GrabberR");
+    FoundationServoL = hardwareMap.servo.get("FoundationServoL");
+    FoundationServoR = hardwareMap.servo.get("FoundationServoR");
+    vuforiaSkyStone = new VuforiaSkyStone();
+    Light_DcMotor = hardwareMap.dcMotor.get("Light");
+    GrabberL = hardwareMap.servo.get("GrabberL");
+
+    Initialization();
+    Light_DcMotor.setPower(1);
+    sleep(150);
+    Light_DcMotor.setPower(0);
+    IsVisibleConcrete = false;
+    waitForStart();
+    if (opModeIsActive()) {
+      GrabberL.setPosition(0.57);
+      GrabberR.setPosition(0.45);
+      Distance_MoveStrafe(1.25, -0.25);
+      DistanceSmoothTravel(12.75, 0.4, 0, 0.02);
+      VuforiaScan();
+      sleep(100);
+      if (IsVisibleConcrete == false) {
+        Distance_MoveStrafe(-5.5, 0.25);
+      }
+      for (int count = 0; count < 4; count++) {
+        SearchforBlock();
+      }
+      Light_DcMotor.setPower(0);
+      IsVisibleConcrete = false;
+      WristMotor.setTargetPosition(950);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(0.5);
+      sleep(150);
+      IMUTurn(0, 1);
+      sleep(150);
+      DistanceSmoothTravel(4.25, 0.5, 0, 0.02);
+      sleep(250);
+      GrabberL.setPosition(0.1);
+      GrabberR.setPosition(0.1);
+      sleep(250);
+      WristMotor.setTargetPosition(525);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(-0.5);
+      DistanceSmoothTravel(-0.5, 0.6, 0, 0.02);
+      if (BlockPositionLeft_ == 1) {
+        Distance_MoveStrafe(-7.5, 0.5);
+      } else if (BlockPositionMiddle_ == 1) {
+        Distance_MoveStrafe(-3.6, 0.5);
+      }
+      IMUTurn(-89, 1);
+      DistanceSmoothTravel(5, 0.3, -90, 0.021);
+      WristMotor.setTargetPosition(750);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(-0.5);
+      DistanceSmoothTravel(23.75, 0.65, -90, 0.021);
+      WristMotor.setTargetPosition(450);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(0.75);
+      DistanceSmoothTravel(22.75, 0.65, -90, 0.021);
+      IMUTurn(-2, -1);
+      DistanceSmoothTravel(7, 0.125, 0, 0.02);
+      GrabberL.setPosition(0.5);
+      GrabberR.setPosition(0.5);
+      sleep(225);
+      WristMotor.setTargetPosition(0);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(-0.75);
+      GrabberL.setPosition(0.1);
+      GrabberR.setPosition(0.1);
+      FoundationServoL.setPosition(1);
+      FoundationServoR.setPosition(0);
+      DistanceSmoothTravel(3, 0.2, 0, 0.02);
+      DistanceSmoothTravel(-5, 0.25, -15, 0.02);
+      DistanceSmoothTravel(-14, 0.25, -15, 0.02);
+      IMUTurn(-89, 0.5);
+      DistanceSmoothTravel(4, 0.6, -90, 0.02);
+      FoundationServoL.setPosition(0);
+      Distance_MoveStrafe(6.2, 0.35);
+      FoundationServoR.setPosition(1);
+      sleep(250);
+      DistanceSmoothTravel(-9, 0.6, -90, 0.02);
+      WristMotor.setTargetPosition(750);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(0.75);
+      DistanceSmoothTravel(-65.8, 0.6, -86.5, 0.035);
+      WristMotor.setTargetPosition(0);
+      WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      WristMotor.setPower(-0.75);
+      if (BlockPositionLeft_ == true) {
+        IMUTurn(0, -1);
+        WristMotor.setTargetPosition(900);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(-0.75);
+        Distance_MoveStrafe(5.2, -1);
+        GrabberL.setPosition(0.25);
+        GrabberR.setPosition(0.65);
+        DistanceSmoothTravel(14.5, 0.25, 0, 0.02);
+        sleep(150);
+        GrabberL.setPosition(0.15);
+        GrabberR.setPosition(0.15);
+        sleep(300);
+        WristMotor.setTargetPosition(750);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(0.75);
+        DistanceSmoothTravel(-5.5, 1, 0, 0.02);
+        IMUTurn(-87, 1);
+        DistanceSmoothTravel(60, 0.6, -90, 0.025);
+        WristMotor.setTargetPosition(550);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(-0.75);
+        sleep(100);
+        DistanceSmoothTravel(25, 0.5, -90, 0.022);
+        GrabberR.setPosition(0.5);
+        GrabberL.setPosition(0.5);
+        DistanceSmoothTravel(-13, 1, -90, 0.023);
+        GrabberR.setPosition(0.1);
+        GrabberL.setPosition(0.1);
+        DistanceSmoothTravel(-13, 1, -90, 0.023);
+      } else {
+        Distance_MoveStrafe(-3.5, 1);
+        IMUTurn(0, -1);
+        Light_DcMotor.setPower(1);
+        for (int count2 = 0; count2 < 160; count2++) {
+          if (isTargetVisible("Stone Target")) {
+            processTarget();
+          }
+          if (IsVisibleConcrete == true) {
+            break;
+          }
+        }
+        for (int count3 = 0; count3 < 8; count3++) {
+          SearchforBlock();
+        }
+        Light_DcMotor.setPower(0);
+        WristMotor.setTargetPosition(900);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(-1);
+        GrabberL.setPosition(0.57);
+        GrabberR.setPosition(0.5);
+        sleep(250);
+        DistanceSmoothTravel(8, 0.25, 0, 0.02);
+        sleep(150);
+        GrabberL.setPosition(0.1);
+        GrabberR.setPosition(0.1);
+        sleep(300);
+        DistanceSmoothTravel(-2.25, 1, 0, 0.02);
+        if (BlockPositionRight_ == 1) {
+          Distance_MoveStrafe(-7.5, 0.5);
+        } else if (BlockPositionMiddle_ == 1) {
+          Distance_MoveStrafe(-3.6, 0.5);
+        }
+        IMUTurn(-90, 1);
+        Distance_MoveStrafe(1.25, -0.25);
+        DistanceSmoothTravel(60, 0.6, -90, 0.025);
+        WristMotor.setTargetPosition(400);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(1);
+        sleep(100);
+        DistanceSmoothTravel(17, 0.5, -90, 0.022);
+        motor_drive_fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor_drive_fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor_drive_bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor_drive_br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MecanumFunction(0, 0, 0);
+        sleep(250);
+        GrabberR.setPosition(0.5);
+        GrabberL.setPosition(0.5);
+        WristMotor.setTargetPosition(250);
+        WristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        WristMotor.setPower(1);
+        DistanceSmoothTravel(-27.5, 1, -92, 0.03);
+      }
+    }
+
+    vuforiaSkyStone.close();
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void Move_n__scan2() {
+    IsVisibleConcrete = false;
+    IMUTurn(10, -1);
+    sleep(100);
+    for (int count4 = 0; count4 < 160; count4++) {
+      if (isTargetVisible("Stone Target")) {
+        processTarget();
+      }
+      if (IsVisibleConcrete == true) {
+        BlockPositionRight_ = 1;
+        break;
+      }
+    }
+    sleep(300);
+    if (IsVisibleConcrete == false) {
+      IMUTurn(0, 1);
+      Distance_MoveStrafe(3, 0.35);
+      for (int count5 = 0; count5 < 140; count5++) {
+        if (isTargetVisible("Stone Target")) {
+          processTarget();
+        }
+        if (IsVisibleConcrete == true) {
+          BlockPositionMiddle_ = 1;
+          break;
+        }
+      }
+    }
+    sleep(275);
+    if (IsVisibleConcrete == false) {
+      Distance_MoveStrafe(3, 0.35);
+      for (int count6 = 0; count6 < 120; count6++) {
+        if (isTargetVisible("Stone Target")) {
+          processTarget();
+        }
+        if (IsVisibleConcrete == true) {
+          BlockPositionLeft_ = 1;
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Describe this function...
+   */
+  private double VuforiaZRot() {
+    return Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.zAngle, "IN"), 2));
+  }
+
+  /**
+   * Describe this function...
+   */
+  private double VuforiaX() {
+    return Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.x, "IN"), 2));
+  }
+
+  /**
+   * Describe this function...
+   */
+  private double VuforiaY() {
+    return Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.y, "IN"), 2));
+  }
+
+  /**
+   * Describe this function...
+   */
+  private boolean isTargetVisible(String trackableName) {
+    // Get vuforia results for target.
+    vuforiaResults = vuforiaSkyStone.track(trackableName);
+    // Is this target visible?
+    if (vuforiaResults.isVisible) {
+      isVisible = true;
+      IsVisibleConcrete = true;
+    } else {
+      isVisible = false;
+    }
+    return isVisible;
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void VuforiaScan() {
+    Light_DcMotor.setPower(1);
+    for (int count7 = 0; count7 < 200; count7++) {
+      if (isTargetVisible("Stone Target")) {
+        processTarget();
+      }
+      if (IsVisibleConcrete == true) {
+        if (Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.y, "IN"), 2)) >= -1) {
+          BlockPositionMiddle_ = 1;
+        } else if (Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.y, "IN"), 2)) <= -1) {
+          BlockPositionLeft_ = 1;
+        }
+        break;
+      }
+    }
+    sleep(250);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void processTarget() {
+    isVisible = true;
+    if (isVisible == true) {
+      IsVisibleConcrete = true;
+    }
+    telemetry.addData("X (in)", Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.x, "IN"), 2)));
+    telemetry.addData("Y (in)", Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.y, "IN"), 2)));
+    telemetry.addData("Z (in)", Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.z, "IN"), 2)));
+    telemetry.addData("Rotation about Z (deg)", Double.parseDouble(JavaUtil.formatNumber(vuforiaResults.zAngle, 2)));
+    Inaccuracy = Double.parseDouble(JavaUtil.formatNumber(displayValue(vuforiaResults.y, "IN"), 2));
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void SearchforBlock() {
+    AccumErrorZRot = 0;
+    AccumErrorX = 0;
+    AccumErrorY = 0;
+    AdditionalMovementX = 0;
+    AdditionalMovementY = 0;
+    AdditionalMovementZRot = 0;
+    while (Math.abs(10.75 + VuforiaX()) >= 1.25 || Math.abs(0 + VuforiaZRot()) >= 1.25 || Math.abs(0.3 + VuforiaY()) >= 1) {
+      if (isStopRequested()) {
+        break;
+      }
+      if (isTargetVisible("Stone Target")) {
+        processTarget();
+      }
+      AccumErrorX = 8 + VuforiaX();
+      AccumErrorY = 1.25 + VuforiaY();
+      AccumErrorZRot = 0 + VuforiaZRot();
+      // Are the targets visible?
+      // (Note we only process first visible target).
+      telemetry.addData("currentX", VuforiaX());
+      telemetry.addData("AdditionalMovementX", AdditionalMovementX);
+      telemetry.update();
+      if (isVisible == true) {
+        MecanumFunction(Math.min(Math.max(0.025 * (10.75 + VuforiaX()) + AdditionalMovementX * 0, -0.5), 0.5), Math.min(Math.max((0.03 * (1 + VuforiaY()) + AdditionalMovementY * 0) - (0.05 * (0 + VuforiaZRot()) + AdditionalMovementZRot * 0) * 0.882352941, -0.6), 0.6), Math.min(Math.max(0.2 * (0 + VuforiaZRot()) + AdditionalMovementZRot * 0, -0.5), 0.5));
+      } else {
+        MecanumFunction(0, 0, 0);
+      }
+      AdditionalMovementX = AdditionalMovementX + AccumErrorX;
+      AdditionalMovementY = AdditionalMovementY + AccumErrorY;
+      AdditionalMovementZRot = AdditionalMovementZRot + AccumErrorZRot;
+    }
+    MecanumFunction(0, 0, 0);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void DistanceSmoothTravel(double InputValue, double Speed, double MaintainAngle, double Gain) {
+    motor_drive_fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    motor_drive_fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    motor_drive_bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    motor_drive_br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    MotorDriveFL = motor_drive_fl.getCurrentPosition();
+    MotorDriveFr = motor_drive_fr.getCurrentPosition();
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    CurrentHeading = angles.firstAngle;
+    Constant = 0.65;
+    EncoderTicks = (InputValue / 12.566) * 480;
+    telemetry.addData("CurrentHeading", CurrentHeading);
+    if (Speed < 0) {
+      Speed = -Speed;
+    }
+    if (InputValue > 0) {
+      while (((motor_drive_fr.getCurrentPosition() - MotorDriveFr) + (motor_drive_fl.getCurrentPosition() - MotorDriveFL)) / 2 >= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        telemetry.addData("EncoderTicks", ((motor_drive_fr.getCurrentPosition() - MotorDriveFr) + (motor_drive_fl.getCurrentPosition() - MotorDriveFL)) / 2);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        CurrentHeading = angles.firstAngle;
+        MecanumFunction(-Speed, 0, (-MaintainAngle + CurrentHeading) * Gain);
+      }
+    } else {
+      while (((motor_drive_fr.getCurrentPosition() - MotorDriveFr) + (motor_drive_fl.getCurrentPosition() - MotorDriveFL)) / 2 <= EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        CurrentHeading = angles.firstAngle;
+        MecanumFunction(-Speed, 0, (-MaintainAngle + CurrentHeading) * Gain);
+      }
+    }
+    if (InputValue < 0) {
+      while (((motor_drive_fr.getCurrentPosition() - MotorDriveFr) + (motor_drive_fl.getCurrentPosition() - MotorDriveFL)) / 2 <= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        CurrentHeading = angles.firstAngle;
+        MecanumFunction(Speed, 0, (-MaintainAngle + CurrentHeading) * Gain);
+      }
+    }
+    MecanumFunction(0, 0, 0);
+    motor_drive_fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor_drive_br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void Distance_Move(double InputValue, double Speed) {
+    motor_drive_fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    Constant = 0.4;
+    EncoderTicks = (InputValue / (12.85 + Speed * Constant)) * 480;
+    if (Speed < 0) {
+      Speed = -Speed;
+    }
+    if (InputValue > 0) {
+      while (motor_drive_fr.getCurrentPosition() >= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(-Speed);
+        motor_drive_fr.setPower(-Speed);
+        motor_drive_bl.setPower(-Speed);
+        motor_drive_br.setPower(-Speed);
+      }
+    } else {
+      while (motor_drive_fr.getCurrentPosition() <= EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(-Speed);
+        motor_drive_fr.setPower(-Speed);
+        motor_drive_bl.setPower(-Speed);
+        motor_drive_br.setPower(-Speed);
+      }
+    }
+    if (InputValue < 0) {
+      while (motor_drive_fr.getCurrentPosition() <= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(Speed);
+        motor_drive_fr.setPower(Speed);
+        motor_drive_bl.setPower(Speed);
+        motor_drive_br.setPower(Speed);
+      }
+    }
+    motor_drive_fl.setPower(0);
+    motor_drive_fr.setPower(0);
+    motor_drive_bl.setPower(0);
+    motor_drive_br.setPower(0);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void MecanumFunction(double YL, double XL, double XR) {
+    motor_drive_fl.setPower(YL - (XL + XR));
+    motor_drive_bl.setPower(YL + (XL - XR));
+    motor_drive_fr.setPower(YL + XL + XR);
+    motor_drive_br.setPower(YL - (XL - XR));
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void IMUTurn(double TrgtAngle, double Speed) {
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    CurrentHeading = angles.firstAngle;
+    AngleToTurn = TrgtAngle - CurrentHeading;
+    if (AngleToTurn < 0) {
+      while (TrgtAngle + 6.5 <= CurrentHeading) {
+        if (isStopRequested()) {
+          break;
+        }
+        if (TrgtAngle - CurrentHeading < -50) {
+          angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+          CurrentHeading = angles.firstAngle;
+          MecanumFunction(0, 0, Speed);
+        } else if (TrgtAngle - CurrentHeading >= -50) {
+          angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+          CurrentHeading = angles.firstAngle;
+          MecanumFunction(0, 0, 0.2);
+        }
+      }
+    } else if (AngleToTurn > 0) {
+      while (TrgtAngle - 6.5 >= CurrentHeading) {
+        if (isStopRequested()) {
+          break;
+        }
+        if (TrgtAngle - CurrentHeading > 50) {
+          angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+          CurrentHeading = angles.firstAngle;
+          MecanumFunction(0, 0, Speed);
+        } else if (TrgtAngle - CurrentHeading <= 50) {
+          angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+          CurrentHeading = angles.firstAngle;
+          MecanumFunction(0, 0, -0.2);
+        }
+      }
+    }
+    MecanumFunction(0, 0, 0);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void Distance_MoveStrafe(double InputValue, double Speed) {
+    motor_drive_fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor_drive_fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_bl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor_drive_br.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    Constant = 0.65;
+    EncoderTicks = (InputValue / (12 + Speed * Constant)) * 1000;
+    if (Speed < 0) {
+      Speed = -Speed;
+    }
+    if (InputValue > 0) {
+      while (motor_drive_fr.getCurrentPosition() >= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(Speed);
+        motor_drive_fr.setPower(-Speed);
+        motor_drive_bl.setPower(-Speed);
+        motor_drive_br.setPower(Speed);
+      }
+    } else {
+      while (motor_drive_fr.getCurrentPosition() <= EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(Speed);
+        motor_drive_fr.setPower(-Speed);
+        motor_drive_bl.setPower(-Speed);
+        motor_drive_br.setPower(Speed);
+      }
+    }
+    if (InputValue < 0) {
+      while (motor_drive_fr.getCurrentPosition() <= -EncoderTicks) {
+        if (isStopRequested()) {
+          break;
+        }
+        motor_drive_fl.setPower(-Speed);
+        motor_drive_fr.setPower(Speed);
+        motor_drive_bl.setPower(Speed);
+        motor_drive_br.setPower(-Speed);
+      }
+    }
+    motor_drive_fl.setPower(0);
+    motor_drive_fr.setPower(0);
+    motor_drive_bl.setPower(0);
+    motor_drive_br.setPower(0);
+  }
+
+  /**
+   * Describe this function...
+   */
+  private void initVuforia() {
+    // Rotate phone -90 so back camera faces "forward" direction on robot.
+    // Assumes landscape orientation
+    vuforiaSkyStone.initialize(
+        "", // vuforiaLicenseKey
+        VuforiaLocalizer.CameraDirection.BACK, // cameraDirection
+        true, // useExtendedTracking
+        false, // enableCameraMonitoring
+        VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES, // cameraMonitorFeedback
+        0, // dx
+        0, // dy
+        0, // dz
+        0, // xAngle
+        -90, // yAngle
+        0, // zAngle
+        true); // useCompetitionFieldTargetLocations
+  }
+
+  /**
+   * Describe this function...
+   */
+  private double displayValue(float originalValue, String units) {
+    // Vuforia returns distances in mm.
+    if (units.equals("CM")) {
+      convertedValue = originalValue / 10;
+    } else if (units.equals("M")) {
+      convertedValue = originalValue / 1000;
+    } else if (units.equals("IN")) {
+      convertedValue = originalValue / 25.4;
+    } else if (units.equals("FT")) {
+      convertedValue = (originalValue / 25.4) / 12;
+    } else {
+      convertedValue = originalValue;
+    }
+    return convertedValue;
+  }
+}

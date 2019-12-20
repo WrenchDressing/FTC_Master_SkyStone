@@ -76,7 +76,6 @@ public class JakesTeleOp extends LinearOpMode {
     gamepad2LeftBumperLastState = false;
     telemetry.addLine("works");
     waitForStart();
-    slowerMode = 1.33333333333333333333333333333333333333333333333333333;
     
      
       while (opModeIsActive()) {
@@ -88,21 +87,20 @@ public class JakesTeleOp extends LinearOpMode {
       // Toggle foundation servos by catching the rising edge of left bumper... i.e. only when the button goes from not pressed to pressed,
       // otherwise, the servos will toggle rapidly between open and closed because the button will be scanned many times per second
       // while it is pressed
-       /* if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState = false)){
+     /* if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
           if (FoundationServoEngaged = false) {
             FoundationServoL.setPosition(0);
             FoundationServoR.setPosition(1);
             FoundationServoEngaged = true;
-          }
-          else {
+          } else {
             FoundationServoL.setPosition(1);
             FoundationServoR.setPosition(0);
             FoundationServoEngaged = false;
-            }
-          gamepad2LeftBumperLastState = true;
           }
+        gamepad2LeftBumperLastState = true;
+        }
         
-        if (!(gamepad2.left_bumper) && (gamepad2LeftBumperLastState = true)){
+        if (!gamepad2.left_bumper && (gamepad2LeftBumperLastState == true)){
           gamepad2LeftBumperLastState = false;
         }
         */
@@ -208,7 +206,7 @@ public class JakesTeleOp extends LinearOpMode {
         } else if(gamepad1.dpad_right && tester){
           slowerMode += 0.01;
           tester = false;
-        } else {
+        } else if(!gamepad1.dpad_right && !gamepad1.dpad_left){
           tester = true;
         }
         
@@ -262,6 +260,7 @@ public class JakesTeleOp extends LinearOpMode {
         telemetry.addData("BL", motor_drive_bl.getPower());
         telemetry.addData("BR", motor_drive_br.getPower());
         telemetry.addData("Tweaking Value ", slowerMode);
+        telemetry.addLine("");
         telemetry.update();
         
       }  

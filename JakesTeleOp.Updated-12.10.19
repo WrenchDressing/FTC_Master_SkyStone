@@ -20,7 +20,7 @@ public class JakesTeleOp extends LinearOpMode {
   public double fr_pow;
   public double bl_pow;
   public double br_pow;
-  public double slowerMode;
+  public double slowerMode = 0.8;
   public double[] smoothArrayLX = new double[100];
   public double[] smoothArrayLY = new double[100];
   public double[] smoothArrayRX = new double[100];

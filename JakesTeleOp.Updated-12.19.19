@@ -20,7 +20,9 @@ public class JakesTeleOp extends LinearOpMode {
   public double fr_pow;
   public double bl_pow;
   public double br_pow;
-  public double slowerMode = 0.8;
+  public double slowerModeLX = 0.8;
+  public double slowerModeLY = 0.8;
+  public double slowerModeRX = 0.8;
   public double[] smoothArrayLX = new double[100];
   public double[] smoothArrayLY = new double[100];
   public double[] smoothArrayRX = new double[100];
@@ -35,14 +37,13 @@ public class JakesTeleOp extends LinearOpMode {
   private boolean gamepad2LeftBumperLastState;  // remember what the bumper button's state was on the last scan
   private boolean FoundationServoEngaged;
   private int target;
-  boolean tester =false;
+  boolean tester = false;
     /**
    * This function is executed when this Op Mode is selected from the Driver Station.
    */
 
   public void runOpMode() {
     
-        double GrabberVariable;
         int LiftyMotorPosition;
 
 
@@ -72,53 +73,57 @@ public class JakesTeleOp extends LinearOpMode {
     LiftyMotor.setTargetPosition(0);
     LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     
+    FoundationServoL.setPosition(0);
+    FoundationServoR.setPosition(1);
     FoundationServoEngaged = false;
     gamepad2LeftBumperLastState = false;
     telemetry.addLine("works");
+    telemetry.update();
     waitForStart();
     
      
       while (opModeIsActive()) {
 
-        telemetry.addData("LiftyMotorCurrentPosition", LiftyMotor.getCurrentPosition());
-        telemetry.update();
-          GrabberVariable = 1;
-          
       // Toggle foundation servos by catching the rising edge of left bumper... i.e. only when the button goes from not pressed to pressed,
       // otherwise, the servos will toggle rapidly between open and closed because the button will be scanned many times per second
       // while it is pressed
-     /* if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
-          if (FoundationServoEngaged = false) {
-            FoundationServoL.setPosition(0);
-            FoundationServoR.setPosition(1);
-            FoundationServoEngaged = true;
-          } else {
-            FoundationServoL.setPosition(1);
-            FoundationServoR.setPosition(0);
-            FoundationServoEngaged = false;
-          }
-        gamepad2LeftBumperLastState = true;
+      if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
+            if (FoundationServoEngaged == false){
+                FoundationServoL.setPosition(0);
+                FoundationServoR.setPosition(1);
+                FoundationServoEngaged = true;
+            }
+            else {
+                FoundationServoL.setPosition(1);
+                FoundationServoR.setPosition(0);
+                FoundationServoEngaged = false;
+            }
+            
+            gamepad2LeftBumperLastState = true;
         }
         
         if (!gamepad2.left_bumper && (gamepad2LeftBumperLastState == true)){
           gamepad2LeftBumperLastState = false;
         }
-        */
+        
        
-       
+       /*
         if ((gamepad2.left_bumper)) {
           FoundationServoL.setPosition(1);
-           FoundationServoR.setPosition(0);
+          FoundationServoR.setPosition(0);
         }
         else {
            FoundationServoL.setPosition(0);
             FoundationServoR.setPosition(1);  
         }
+        */
         if (gamepad2.x){
-          WristMotor.setPower(.15);
+// JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+          WristMotor.setPower(.20);
         }
         else if (gamepad2.b){
-          WristMotor.setPower(-.15);
+// JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+          WristMotor.setPower(-.20);
         }
         else {
           WristMotor.setPower(0);
@@ -163,43 +168,70 @@ public class JakesTeleOp extends LinearOpMode {
 */
           // No presets, just keeping it simple by switching from speed control when moving and position control when stopped for LiftyMotor
           // Jake: Extend functionality later by adding block height presets.  Use LiftyMotor.isBusy() to tell if position control is ramping instead of 'running' variable
-          if (((gamepad2.left_stick_y <= -0.1) && (LiftyMotor.getCurrentPosition() <= 6100))){
+//          if (((gamepad2.left_stick_y <= -0.1) && (LiftyMotor.getCurrentPosition() <= 6100))){
+
+          if (((gamepad2.left_stick_y <= -0.1) && (LiftyMotor.getCurrentPosition() <= 6650))){
             target = LiftyMotor.getCurrentPosition();
             LiftyMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             LiftyMotor.setPower(-gamepad2.left_stick_y);
-            
-         
-          } else if((gamepad2.left_stick_y) >= 0.1 && (LiftyMotor.getCurrentPosition() >= 150)){
+          } 
+          else if((gamepad2.left_stick_y) >= 0.1 && (LiftyMotor.getCurrentPosition() >= 50)){
             target = LiftyMotor.getCurrentPosition();
             LiftyMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            LiftyMotor.setPower(-gamepad2.left_stick_y * 0.6);
+            LiftyMotor.setPower(-gamepad2.left_stick_y * 0.5);
           }
-         else if (gamepad2.left_stick_y >= -0.1 && gamepad2.left_stick_y <= 0.1){
+          else if (gamepad2.left_stick_y >= -0.1 && gamepad2.left_stick_y <= 0.1){
             LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             LiftyMotor.setTargetPosition(target);
             LiftyMotor.setPower(0.5);
           }
+          else if (LiftyMotor.getCurrentPosition() >= 6650){
+              LiftyMotor.setPower(0);
+              LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              LiftyMotor.setTargetPosition(6650);
+              LiftyMotor.setPower(0.5);
+
+          }
+          else if (LiftyMotor.getCurrentPosition() <= 50){
+              LiftyMotor.setPower(0);
+              LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+              LiftyMotor.setTargetPosition(50);
+              LiftyMotor.setPower(0.5);
+          }
+
+
+//telemetry.addData("target", target);
+//telemetry.update();
 
 
         if (gamepad2.a) {
           GrabberR.setPosition(0.15);
           GrabberL.setPosition(0.15);
         }
-        else {
-            GrabberR.setPosition(.5);
+        else if (gamepad2.y) {
+            GrabberR.setPosition(0.20);
+            GrabberL.setPosition(0.50);
+        } else {
+            GrabberR.setPosition(0.5);
             GrabberL.setPosition(0.5);
         }
+        
     
         // Toggle Creep Mode with left trigger
+        // For tweaking, disable the following 5 lines of code
         
         if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = 0.15;
+          slowerModeLX = 0.42;
+          slowerModeLY = 0.15;
+          slowerModeRX = 0.41;
         } else {
-            slowerMode = 0.8;
+            slowerModeLX = 0.8;
+            slowerModeLY = 0.8;
+            slowerModeRX = 0.8;
         }
         
         // New tweaking of slowerMode in order to get the optimal settings for Kaleb
-        
+        /*
         if(gamepad1.dpad_left && tester){
           slowerMode -= 0.01;
           tester = false;
@@ -209,7 +241,7 @@ public class JakesTeleOp extends LinearOpMode {
         } else if(!gamepad1.dpad_right && !gamepad1.dpad_left){
           tester = true;
         }
-        
+        */
         
         //motor gamestick algorithm
           
@@ -227,10 +259,7 @@ public class JakesTeleOp extends LinearOpMode {
         } else if (gamepad1.right_bumper) {
             newSmoothing();
         } else {
-            fl_pow = (gamepad1.left_stick_y - (gamepad1.left_stick_x * 1.1) - gamepad1.right_stick_x) * slowerMode;
-            bl_pow = (-gamepad1.left_stick_y - (gamepad1.left_stick_x * 1.1) + gamepad1.right_stick_x) * slowerMode;
-            fr_pow = (-gamepad1.left_stick_y - (gamepad1.left_stick_x * 1.1) - gamepad1.right_stick_x) * slowerMode;
-            br_pow = (gamepad1.left_stick_y - (gamepad1.left_stick_x * 1.1) + gamepad1.right_stick_x) * slowerMode;
+            standardDrive();
         }
         
         normalizationDrive(fl_pow, fr_pow, bl_pow, br_pow);
@@ -250,7 +279,7 @@ public class JakesTeleOp extends LinearOpMode {
         motor_drive_fl.setPower(fl_pow);
         motor_drive_fr.setPower(fr_pow);
         motor_drive_bl.setPower(bl_pow);
-        motor_drive_br.setPower(br_pow)
+        motor_drive_br.setPower(br_pow);
 
         //standard telemetry updates to check on values in real time
         
@@ -259,7 +288,7 @@ public class JakesTeleOp extends LinearOpMode {
         telemetry.addData("FR", motor_drive_fr.getPower());
         telemetry.addData("BL", motor_drive_bl.getPower());
         telemetry.addData("BR", motor_drive_br.getPower());
-        telemetry.addData("Tweaking Value ", slowerMode);
+        //telemetry.addData("Tweaking Value ", slowerMode);
         telemetry.addLine("");
         telemetry.update();
         
@@ -270,10 +299,10 @@ public class JakesTeleOp extends LinearOpMode {
   
     private void standardDrive(){
       
-        fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
+        fl_pow = (gamepad1.left_stick_y * slowerModeLY) - (gamepad1.left_stick_x * slowerModeLX) - (gamepad1.right_stick_x * slowerModeRX);
+        bl_pow = (-gamepad1.left_stick_y * slowerModeLY) - (gamepad1.left_stick_x * slowerModeLX) + (gamepad1.right_stick_x * slowerModeRX);
+        fr_pow = (-gamepad1.left_stick_y * slowerModeLY) - (gamepad1.left_stick_x * slowerModeLX) - (gamepad1.right_stick_x * slowerModeRX);
+        br_pow = (gamepad1.left_stick_y * slowerModeLY) - (gamepad1.left_stick_x * slowerModeLX) + (gamepad1.right_stick_x * slowerModeRX);
         
     }
     
@@ -373,10 +402,10 @@ public class JakesTeleOp extends LinearOpMode {
            }
          }
          
-         fl_pow = (sLY - sLX - sRX) * slowerMode;
-         bl_pow = (-sLY - sLX + sRX) * slowerMode;
-         fr_pow = (-sLY - sLX - sRX) * slowerMode;
-         br_pow = (sLY - sLX + sRX) * slowerMode;
+         fl_pow = (sLY * slowerModeLY) - (sLX * slowerModeLX) - (sRX * slowerModeRX);
+         bl_pow = (-sLY * slowerModeLY) - (sLX * slowerModeLX) + (sRX * slowerModeRX);
+         fr_pow = (-sLY * slowerModeLY) - (sLX * slowerModeLX) - (sRX * slowerModeRX);
+         br_pow = (sLY * slowerModeLY) - (sLX * slowerModeLX) + (sRX * slowerModeRX);
          
       }
       
@@ -414,10 +443,10 @@ public class JakesTeleOp extends LinearOpMode {
         totalLY = totalLY * 70;
         totalRX = totalRX * 70;
         
-        fl_pow = (totalLY - totalLX - totalRX) * slowerMode;
-        bl_pow = (-totalLY - totalLX + totalRX) * slowerMode;
-        fr_pow = (-totalLY - totalLX - totalRX) * slowerMode;
-        br_pow = (totalLY - totalLX + totalRX) * slowerMode;
+        fl_pow = (totalLY * slowerModeLY) - (totalLX * slowerModeLX) - (totalRX * slowerModeRX);
+        bl_pow = (-totalLY * slowerModeLY) - (totalLX * slowerModeLX) + (totalRX * slowerModeRX);
+        fr_pow = (-totalLY * slowerModeLY) - (totalLX * slowerModeLX) - (totalRX * slowerModeRX);
+        br_pow = (totalLY * slowerModeLY) - (totalLX * slowerModeLX) + (totalRX * slowerModeRX);
         
       }
     

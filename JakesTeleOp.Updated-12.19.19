@@ -205,11 +205,50 @@ public class JakesTeleOp extends LinearOpMode {
           GrabberR.setPosition(0.15);
           GrabberL.setPosition(0.15);
         } else if (gamepad2.y) {
-            GrabberR.setPosition(0.20);
-            GrabberL.setPosition(0.50);
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.5);
         } else {
             GrabberR.setPosition(0.5);
             GrabberL.setPosition(0.5);
+        }
+        
+        //EZ block rotator code for changing the block from long way to short way 
+        
+        if(gamepad1.a){
+            encoderChecker(170, "backward");
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.5);
+            encoderChecker(-170, "forward");
+            GrabberR.setPosition(0.5);
+            GrabberL.setPosition(0.2);
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.2);
+            GrabberR.setPosition(0.5);
+            GrabberL.setPosition(0.5);
+            sleep(100);
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.2);
+            motor_drive_bl.setPower(0);
+            motor_drive_fl.setPower(0);
+            motor_drive_fr.setPower(0);
+            motor_drive_fl.setPower(0);
+            sleep(100);
+        }
+        
+        //EZ block rotator code for changing the block from short way to long way
+        
+        if(gamepad1.x){
+            encoderChecker(50, "backward");
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.5);
+            encoderChecker(-240, "right");
+            GrabberR.setPosition(0.5);
+            GrabberL.setPosition(0.5);
+            encoderChecker(300, "left");
+            encoderChecker(-120, "forward");
+            GrabberR.setPosition(0.2);
+            GrabberL.setPosition(0.2);
+            sleep(200);
         }
         
         
@@ -218,7 +257,7 @@ public class JakesTeleOp extends LinearOpMode {
         
         //Depending on the inputs, the driver can have the drivetrain run on smoothing, new smoothing, or standard drives
         
-        if (gamepad1.a) {
+        if (gamepad1.left_bumper) {
             smoothing();
         } else if (gamepad1.right_bumper) {
             newSmoothing();
@@ -443,4 +482,60 @@ public class JakesTeleOp extends LinearOpMode {
         
       }
     
+    //function for checking encoder movement for EZblock
+    
+    private void encoderChecker(int target, String movement){
+        int newTarget = motor_drive_fl.getCurrentPosition() + target;
+        if(motor_drive_fl.getCurrentPosition() > newTarget){
+            while(motor_drive_fl.getCurrentPosition() > newTarget){
+                if(movement == "forward"){
+                    motor_drive_fl.setPower(-0.5);
+                    motor_drive_fr.setPower(0.5);
+                    motor_drive_bl.setPower(0.5);
+                    motor_drive_br.setPower(-0.5);
+                } else if(movement == "backward"){
+                    motor_drive_fl.setPower(0.5);
+                    motor_drive_fr.setPower(-0.5);
+                    motor_drive_bl.setPower(-0.5);
+                    motor_drive_br.setPower(0.5);
+                } else if(movement == "left"){
+                    motor_drive_fl.setPower(0.5);
+                    motor_drive_fr.setPower(0.5);
+                    motor_drive_bl.setPower(-0.5);
+                    motor_drive_br.setPower(-0.5);
+                } else if(movement == "right"){
+                    motor_drive_fl.setPower(-0.5);
+                    motor_drive_fr.setPower(-0.5);
+                    motor_drive_bl.setPower(0.5);
+                    motor_drive_br.setPower(0.5);
+                }
+            }
+        }
+        else if(motor_drive_fl.getCurrentPosition() < newTarget){
+            while(motor_drive_fl.getCurrentPosition() < newTarget){
+                if(movement == "forward"){
+                    motor_drive_fl.setPower(-0.5);
+                    motor_drive_fr.setPower(0.5);
+                    motor_drive_bl.setPower(0.5);
+                    motor_drive_br.setPower(-0.5);
+                } else if(movement == "backward"){
+                    motor_drive_fl.setPower(0.5);
+                    motor_drive_fr.setPower(-0.5);
+                    motor_drive_bl.setPower(-0.5);
+                    motor_drive_br.setPower(0.5);
+                } else if(movement == "left"){
+                    motor_drive_fl.setPower(0.5);
+                    motor_drive_fr.setPower(0.5);
+                    motor_drive_bl.setPower(-0.5);
+                    motor_drive_br.setPower(-0.5);
+                } else if(movement == "right"){
+                    motor_drive_fl.setPower(-0.5);
+                    motor_drive_fr.setPower(-0.5);
+                    motor_drive_bl.setPower(0.5);
+                    motor_drive_br.setPower(0.5);
+                }
+            }
+        }
+    }
   }
+  

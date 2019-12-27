@@ -44,9 +44,7 @@ public class JakesTeleOp extends LinearOpMode {
 
   public void runOpMode() {
     
-        int LiftyMotorPosition;
-
-
+    int LiftyMotorPosition;
     motor_drive_fl = hardwareMap.dcMotor.get("motor_drive_fl");
     motor_drive_bl = hardwareMap.dcMotor.get("motor_drive_bl");
     motor_drive_fr = hardwareMap.dcMotor.get("motor_drive_fr");
@@ -81,13 +79,17 @@ public class JakesTeleOp extends LinearOpMode {
     telemetry.update();
     waitForStart();
     
-     
-      while (opModeIsActive()) {
+    while (opModeIsActive()) {
 
-      // Toggle foundation servos by catching the rising edge of left bumper... i.e. only when the button goes from not pressed to pressed,
-      // otherwise, the servos will toggle rapidly between open and closed because the button will be scanned many times per second
-      // while it is pressed
-      if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
+
+        /*     *****FOUNDATION FUNCTIONS*****     */
+        
+        
+        // Toggle foundation servos by catching the rising edge of left bumper... i.e. only when the button goes from not pressed to pressed,
+        // otherwise, the servos will toggle rapidly between open and closed because the button will be scanned many times per second
+        // while it is pressed
+        
+        if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
             if (FoundationServoEngaged == false){
                 FoundationServoL.setPosition(0);
                 FoundationServoR.setPosition(1);
@@ -101,28 +103,22 @@ public class JakesTeleOp extends LinearOpMode {
             
             gamepad2LeftBumperLastState = true;
         }
-        
         if (!gamepad2.left_bumper && (gamepad2LeftBumperLastState == true)){
           gamepad2LeftBumperLastState = false;
         }
+
         
-       
-       /*
-        if ((gamepad2.left_bumper)) {
-          FoundationServoL.setPosition(1);
-          FoundationServoR.setPosition(0);
-        }
-        else {
-           FoundationServoL.setPosition(0);
-            FoundationServoR.setPosition(1);  
-        }
-        */
+        /*     *****WRIST FUNCTIONS*****     */
+        
+        
+        //general wrist operation functions and code
+        
         if (gamepad2.x){
-// JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+        // JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
           WristMotor.setPower(.20);
         }
         else if (gamepad2.b){
-// JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+        // JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
           WristMotor.setPower(-.20);
         }
         else {
@@ -130,7 +126,7 @@ public class JakesTeleOp extends LinearOpMode {
         }
         
 
-/*        if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() <= 6500) {
+/*      if (gamepad2.dpad_up && LiftyMotor.getCurrentPosition() <= 6500) {
             LiftyMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             target = (LiftyMotor.getCurrentPosition() + 839);
             running= true;
@@ -198,17 +194,17 @@ public class JakesTeleOp extends LinearOpMode {
               LiftyMotor.setTargetPosition(50);
               LiftyMotor.setPower(0.5);
           }
+          
+          
+        /*     *****GRABBER FUNCTIONS*****     */
 
 
-//telemetry.addData("target", target);
-//telemetry.update();
-
+        //sets the three different positions for the servos in order to best grab, move, and rotate blocks
 
         if (gamepad2.a) {
           GrabberR.setPosition(0.15);
           GrabberL.setPosition(0.15);
-        }
-        else if (gamepad2.y) {
+        } else if (gamepad2.y) {
             GrabberR.setPosition(0.20);
             GrabberL.setPosition(0.50);
         } else {
@@ -216,7 +212,32 @@ public class JakesTeleOp extends LinearOpMode {
             GrabberL.setPosition(0.5);
         }
         
-    
+        
+        /*     *****DRIVETRAIN FUNCTIONS*****     */
+        
+        
+        //Depending on the inputs, the driver can have the drivetrain run on smoothing, new smoothing, or standard drives
+        
+        if (gamepad1.a) {
+            smoothing();
+        } else if (gamepad1.right_bumper) {
+            newSmoothing();
+        } else {
+            standardDrive();
+        }
+        
+        normalizationDrive(fl_pow, fr_pow, bl_pow, br_pow);
+        
+                                      
+        //right trigger flips motors
+          
+        if (gamepad1.right_trigger == 1) {
+          motor_drive_fl.setPower(-motor_drive_fl.getPower());
+          motor_drive_fr.setPower(-motor_drive_fr.getPower());
+          motor_drive_br.setPower(-motor_drive_br.getPower());
+          motor_drive_bl.setPower(-motor_drive_bl.getPower());
+        }
+        
         // Toggle Creep Mode with left trigger
         // For tweaking, disable the following 5 lines of code
         
@@ -242,38 +263,6 @@ public class JakesTeleOp extends LinearOpMode {
           tester = true;
         }
         */
-        
-        //motor gamestick algorithm
-          
-        /*
-        double fl_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        double bl_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        double fr_pow = (-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * slowerMode;
-        double br_pow = (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * slowerMode;
-        */
-        
-        //Depending on the inputs, the driver can have the drivetrain run on smoothing, new smoothing, or standard drives
-        
-        if (gamepad1.a) {
-            smoothing();
-        } else if (gamepad1.right_bumper) {
-            newSmoothing();
-        } else {
-            standardDrive();
-        }
-        
-        normalizationDrive(fl_pow, fr_pow, bl_pow, br_pow);
-        
-                                      
-        //right trigger flips motors
-          
-        if (gamepad1.right_trigger == 1) {
-          motor_drive_fl.setPower(-motor_drive_fl.getPower());
-          motor_drive_fr.setPower(-motor_drive_fr.getPower());
-          motor_drive_br.setPower(-motor_drive_br.getPower());
-          motor_drive_bl.setPower(-motor_drive_bl.getPower());
-        }
-        
         //motor powering
           
         motor_drive_fl.setPower(fl_pow);
@@ -294,6 +283,10 @@ public class JakesTeleOp extends LinearOpMode {
         
       }  
   }
+  
+  
+    /*     *****DRIVETRAIN ALGORITHMS*****     */
+    
     
     //standard drive algorithm
   

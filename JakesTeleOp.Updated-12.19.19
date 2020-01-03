@@ -36,6 +36,7 @@ public class JakesTeleOp extends LinearOpMode {
   private boolean running;
   private boolean gamepad2LeftBumperLastState;  // remember what the bumper button's state was on the last scan
   private boolean FoundationServoEngaged;
+  private boolean state_Function = true;
   private int target;
   boolean tester = false;
     /**
@@ -215,19 +216,24 @@ public class JakesTeleOp extends LinearOpMode {
         //EZ block rotator code for changing the block from long way to short way 
         
         if(gamepad1.a){
+            state_Function = true;
             encoderChecker(170, "backward");
-            GrabberR.setPosition(0.2);
-            GrabberL.setPosition(0.5);
+            if(state_Function){
+              GrabberR.setPosition(0.2);
+              GrabberL.setPosition(0.5);
+            }
             encoderChecker(-170, "forward");
-            GrabberR.setPosition(0.5);
-            GrabberL.setPosition(0.2);
-            GrabberR.setPosition(0.2);
-            GrabberL.setPosition(0.2);
-            GrabberR.setPosition(0.5);
-            GrabberL.setPosition(0.5);
-            sleep(100);
-            GrabberR.setPosition(0.2);
-            GrabberL.setPosition(0.2);
+            if(state_Function){
+              GrabberR.setPosition(0.5);
+              GrabberL.setPosition(0.2);
+              GrabberR.setPosition(0.2);
+              GrabberL.setPosition(0.2);
+              GrabberR.setPosition(0.5);
+              GrabberL.setPosition(0.5);
+              sleep(100);
+              GrabberR.setPosition(0.2);
+              GrabberL.setPosition(0.2);
+            }
             motor_drive_bl.setPower(0);
             motor_drive_fl.setPower(0);
             motor_drive_fr.setPower(0);
@@ -238,16 +244,23 @@ public class JakesTeleOp extends LinearOpMode {
         //EZ block rotator code for changing the block from short way to long way
         
         if(gamepad1.x){
+            state_Function = true;
             encoderChecker(50, "backward");
-            GrabberR.setPosition(0.2);
-            GrabberL.setPosition(0.5);
+            if(state_Function){
+              GrabberR.setPosition(0.2);
+              GrabberL.setPosition(0.5);
+            }
             encoderChecker(-240, "right");
-            GrabberR.setPosition(0.5);
-            GrabberL.setPosition(0.5);
+            if(state_Function){
+              GrabberR.setPosition(0.5);
+              GrabberL.setPosition(0.5);
+            }
             encoderChecker(300, "left");
             encoderChecker(-120, "forward");
-            GrabberR.setPosition(0.2);
-            GrabberL.setPosition(0.2);
+            if(state_Function){
+              GrabberR.setPosition(0.2);
+              GrabberL.setPosition(0.2);
+            }
             sleep(200);
         }
         
@@ -487,7 +500,7 @@ public class JakesTeleOp extends LinearOpMode {
     private void encoderChecker(int target, String movement){
         int newTarget = motor_drive_fl.getCurrentPosition() + target;
         if(motor_drive_fl.getCurrentPosition() > newTarget){
-            while(motor_drive_fl.getCurrentPosition() > newTarget){
+            while(motor_drive_fl.getCurrentPosition() > newTarget && state_Function){
                 if(movement == "forward"){
                     motor_drive_fl.setPower(-0.5);
                     motor_drive_fr.setPower(0.5);
@@ -509,10 +522,13 @@ public class JakesTeleOp extends LinearOpMode {
                     motor_drive_bl.setPower(0.5);
                     motor_drive_br.setPower(0.5);
                 }
+                if(Math.abs(gamepad1.left_stick_x) > 0.1 || Math.abs(gamepad1.left_stick_y) > 0.1 || Math.abs(gamepad1.right_stick_x) > 0.1){
+                   state_Function = false;
+                }
             }
         }
         else if(motor_drive_fl.getCurrentPosition() < newTarget){
-            while(motor_drive_fl.getCurrentPosition() < newTarget){
+            while(motor_drive_fl.getCurrentPosition() < newTarget && state_Function){
                 if(movement == "forward"){
                     motor_drive_fl.setPower(-0.5);
                     motor_drive_fr.setPower(0.5);
@@ -533,9 +549,11 @@ public class JakesTeleOp extends LinearOpMode {
                     motor_drive_fr.setPower(-0.5);
                     motor_drive_bl.setPower(0.5);
                     motor_drive_br.setPower(0.5);
+                }
+                if(Math.abs(gamepad1.left_stick_x) > 0.1 || Math.abs(gamepad1.left_stick_y) > 0.1 || Math.abs(gamepad1.right_stick_x) > 0.1){
+                   state_Function = false;
                 }
             }
         }
     }
   }
-  

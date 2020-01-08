@@ -37,45 +37,43 @@ public class Teleop3 extends LinearOpMode {
     
     waitForStart();
       
-      while (opModeIsActive()) {
+    while (opModeIsActive()) {
       
-        //set motors algorithms here
+      //set motors algorithms here
         
-        motor_drive.setPower(-gamepad1.left_stick_y * slowerMode);
+      motor_drive.setPower(-gamepad1.left_stick_y * slowerMode);
         
-      //set other algorithms/methods here
+            //set other algorithms/methods here
         
-        //left trigger slows motors
+      //left trigger slows motors
         
-        if (gamepad1.left_trigger >= 0.5) {
-          slowerMode = .25;
-        } else {
-            slowerMode = 1.0;
-          }
+      if (gamepad1.left_trigger >= 0.5) {
+        slowerMode = .25;
+      } else {
+        slowerMode = 1.0;
+      }
           
-          //right trigger flips motors
+      //right trigger flips motors
           
-        if (gamepad1.right_trigger == 1) {
-          motor_drive.setPower(-motor_drive.getPower());
+      if (gamepad1.right_trigger == 1) {
+        motor_drive.setPower(-motor_drive.getPower()); 
+      }
           
-        }
+      //gamepad x and b runs servo
           
-          //gamepad x and b runs servo
-          
-        if (gamepad2.x == true) {
-          collection_servo.setPower(-1);
-        } else if (gamepad2.b == true) {
-          collection_servo.setPower(1);
-          }
-            else {
-              collection_servo.setPower(.055);
-            }
+      if (gamepad2.x == true) {
+        collection_servo.setPower(-1);
+      } else if (gamepad2.b == true) {
+        collection_servo.setPower(1);
+      } else {
+        collection_servo.setPower(.055);
+      }
             
-          //telemetry code... THIS WILL SHOW UP ON YOUR PHONE. You can also make it show changing values!
+        //telemetry code... THIS WILL SHOW UP ON YOUR PHONE. You can also make it show changing values!
         
-          telemetry.addLine("Tele-Op is Green!");
-          telemetry.addData("Motor Power", motor_drive.getPower());
-          telemetry.update();
+      telemetry.addLine("Tele-Op is Green!");
+      telemetry.addData("Motor Power", motor_drive.getPower());
+      telemetry.update();
         
       }  
     }

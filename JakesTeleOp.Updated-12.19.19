@@ -101,8 +101,10 @@ public class JakesTeleOp extends LinearOpMode {
         /*     *****FOUNDATION FUNCTIONS*****     */
         
         
-        // Toggle foundation servos by catching the rising edge of left bumper... i.e. only when the button goes from not pressed to pressed,
-        // otherwise, the servos will toggle rapidly between open and closed because the button will be scanned many times per second
+        // Toggle foundation servos by catching the rising edge of left bumper... 
+            //i.e. only when the button goes from not pressed to pressed,
+        // otherwise, the servos will toggle rapidly between open and closed 
+            //because the button will be scanned many times per second
         // while it is pressed
         
         if ((gamepad2.left_bumper) && (gamepad2LeftBumperLastState == false)){
@@ -130,11 +132,13 @@ public class JakesTeleOp extends LinearOpMode {
         //general wrist operation functions and code
         
         if (gamepad2.x){
-        // JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+        // JAKE: Consider adding some way of detecting if we are at the end of 
+            //travel so we don't stress the drivetrain unecessarily
           WristMotor.setPower(.33);
         }
         else if (gamepad2.b){
-        // JAKE: Consider adding some way of detecting if we are at the end of travel so we don't stress the drivetrain unecessarily
+        // JAKE: Consider adding some way of detecting if we are at the end of 
+            //travel so we don't stress the drivetrain unecessarily
           WristMotor.setPower(-.33);
         }
         else {
@@ -178,8 +182,10 @@ public class JakesTeleOp extends LinearOpMode {
           running = false;
         }
 */
-          // No presets, just keeping it simple by switching from speed control when moving and position control when stopped for LiftyMotor
-          // Jake: Extend functionality later by adding block height presets.  Use LiftyMotor.isBusy() to tell if position control is ramping instead of 'running' variable
+          // No presets, just keeping it simple by switching from speed control when moving and
+            //position control when stopped for LiftyMotor
+          // Jake: Extend functionality later by adding block height presets.  Use 
+            //LiftyMotor.isBusy() to tell if position control is ramping instead of 'running' variable
 //          if (((gamepad2.left_stick_y <= -0.1) && (LiftyMotor.getCurrentPosition() <= 6100))){
 
           if (((gamepad2.left_stick_y <= -0.1) && (LiftyMotor.getCurrentPosition() <= 6900))){
@@ -215,7 +221,8 @@ public class JakesTeleOp extends LinearOpMode {
         /*     *****GRABBER FUNCTIONS*****     */
 
 
-        //sets the three different positions for the servos in order to best grab, move, and rotate blocks
+        //sets the three different positions for the servos in order to best grab, 
+            //move, and rotate blocks
 
         /*if (gamepad2.a) {
           GrabberR.setPosition(0);
@@ -229,7 +236,8 @@ public class JakesTeleOp extends LinearOpMode {
             GrabberL.setPosition(0.5);
         }*/
         
-        //updated grabber function in order to open and close each time the a button is pressed, but still has the y to rotate
+        //updated grabber function in order to open and close each time the a button 
+            //is pressed, but still has the y to rotate
         
         if ((gamepad2.a) && (gamepad2ALastState == false)){
             if (grabberEngaged == false){
@@ -279,9 +287,9 @@ public class JakesTeleOp extends LinearOpMode {
             motor_drive_fl.setPower(0);
             motor_drive_fr.setPower(0);
             motor_drive_fl.setPower(0);
-            sleep(100);
-            GrabberR.setPosition(0.15);
-            GrabberL.setPosition(0.15);
+            sleep(250);
+            GrabberR.setPosition(0);
+            GrabberL.setPosition(0);
         }
         
         //EZ block rotator code for changing the block from short way to long way
@@ -311,7 +319,8 @@ public class JakesTeleOp extends LinearOpMode {
         /*     *****DRIVETRAIN FUNCTIONS*****     */
         
         
-        //Depending on the inputs, the driver can have the drivetrain run on smoothing, new smoothing, or standard drives
+        //Depending on the inputs, the driver can have the drivetrain run on smoothing, 
+            //new smoothing, or standard drives
         
         if (gamepad1.left_bumper) {
             smoothing();
@@ -337,7 +346,7 @@ public class JakesTeleOp extends LinearOpMode {
         // For tweaking, disable the following 5 lines of code
         
         if (gamepad1.left_trigger >= 0.5) {
-          slowerModeLX = 0.52;
+          slowerModeLX = 0.62;
           slowerModeLY = 0.15;
           slowerModeRX = 0.41;
         } else {
@@ -583,4 +592,3 @@ public class JakesTeleOp extends LinearOpMode {
         }
     }
   }
-  
